@@ -15,7 +15,7 @@
 	<packaging>war</packaging>
 
 	<name>sum-service-registry</name>
-	<description>SUM - Wealth Management Service Registry Module</description>
+	<description>SUM - Wealth Management App Service Registry Module</description>
 
 	<dependencies>
 		<dependency>
