@@ -27,6 +27,7 @@
 		<module>sum-notification-service</module>
 		<module>sum-report-service</module>
 		<module>sum-market-service</module>
+		<module>sum-inventory-service</module>
 	</modules>
 
 	<dependencyManagement>
