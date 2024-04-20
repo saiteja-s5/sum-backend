@@ -25,6 +25,7 @@
 	<modules>
 		<module>sum-service-registry</module>
 		<module>sum-notification-service</module>
+		<module>sum-report-service</module>
 	</modules>
 
 	<dependencyManagement>
