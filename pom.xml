@@ -28,6 +28,7 @@
 		<module>sum-report-service</module>
 		<module>sum-market-service</module>
 		<module>sum-inventory-service</module>
+		<module>sum-api-gateway</module>
 	</modules>
 
 	<dependencyManagement>
