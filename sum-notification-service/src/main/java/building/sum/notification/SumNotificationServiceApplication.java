@@ -1,4 +1,4 @@
-package building.sum.api_gateway;
+package building.sum.notification;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,13 +8,13 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-public class SumApiGatewayApplication {
+public class SumNotificationServiceApplication {
 
 	private static final Logger log = LogManager.getLogger();
 
 	public static void main(String[] args) {
-		SpringApplication.run(SumApiGatewayApplication.class, args);
-		log.info("SUM Wealth Monitoring App API Gateway started");
+		SpringApplication.run(SumNotificationServiceApplication.class, args);
+		log.info("SUM Wealth Monitoring App Notification Service started");
 	}
 
 }

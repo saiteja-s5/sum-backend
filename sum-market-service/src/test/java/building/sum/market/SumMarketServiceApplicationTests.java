@@ -1,4 +1,4 @@
-package building.sum.market_service;
+package building.sum.market;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

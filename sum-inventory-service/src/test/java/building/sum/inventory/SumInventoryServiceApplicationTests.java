@@ -1,4 +1,4 @@
-package building.sum.inventory_service;
+package building.sum.inventory;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,20 +1,20 @@
-package building.sum.report_service;
+package building.sum.registry;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 
 @SpringBootApplication
-@EnableDiscoveryClient
-public class SumReportServiceApplication {
+@EnableEurekaServer
+public class SumServiceRegistryApplication {
 
 	private static final Logger log = LogManager.getLogger();
-	
+
 	public static void main(String[] args) {
-		SpringApplication.run(SumReportServiceApplication.class, args);
-		log.info("SUM Wealth Monitoring App Reports Service started");
+		SpringApplication.run(SumServiceRegistryApplication.class, args);
+		log.info("SUM Wealth Monitoring App Eureka Server started");
 	}
 
 }

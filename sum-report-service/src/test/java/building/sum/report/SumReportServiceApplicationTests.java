@@ -1,10 +1,10 @@
-package building.sum.service_registry;
+package building.sum.report;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class SumServiceRegistryApplicationTests {
+class SumReportServiceApplicationTests {
 
 	@Test
 	void contextLoads() {

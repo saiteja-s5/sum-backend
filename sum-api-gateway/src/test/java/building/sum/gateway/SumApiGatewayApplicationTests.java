@@ -1,10 +1,10 @@
-package building.sum.notification_service;
+package building.sum.gateway;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class SumNotificationServiceApplicationTests {
+class SumApiGatewayApplicationTests {
 
 	@Test
 	void contextLoads() {

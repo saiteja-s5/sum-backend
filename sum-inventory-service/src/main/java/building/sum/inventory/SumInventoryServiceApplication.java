@@ -1,4 +1,4 @@
-package building.sum.inventory_service;
+package building.sum.inventory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

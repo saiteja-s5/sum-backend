@@ -1,10 +1,10 @@
-package building.sum.api_gateway;
+package building.sum.registry;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class SumApiGatewayApplicationTests {
+class SumServiceRegistryApplicationTests {
 
 	@Test
 	void contextLoads() {
