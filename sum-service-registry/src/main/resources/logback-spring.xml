@@ -6,7 +6,7 @@
 						">
 	<appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>[%d{dd-MMM-yyyy HH:mm:ss.SSS}] [%5p] [%t] [%c:%L] : %m%n</pattern>
+			<pattern>%red([%d{dd-MMM-yyyy HH:mm:ss.SSS}]) %green([%-5p]) [%-13t] %blue([%c:%L]) : %m%n</pattern>
 		</encoder>
 	</appender>
 	<appender name="File"
@@ -16,8 +16,7 @@
 		</encoder>
 		<rollingPolicy
 			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>Sum App Logs/Eureka Server
-				Logs/Eureka-%d{dd-MMM-yyyy}.log</fileNamePattern>
+			<fileNamePattern>Sum App Logs/Eureka Server Logs/Eureka-%d{dd-MMM-yyyy}.log</fileNamePattern>
 			<maxHistory>30</maxHistory>
 		</rollingPolicy>
 	</appender>
