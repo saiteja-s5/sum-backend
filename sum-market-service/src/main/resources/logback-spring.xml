@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration
+	xmlns="http://ch.qos.logback/xml/ns/logback"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://ch.qos.logback/xml/ns/logback https://raw.githubusercontent.com/enricopulatzo/logback-XSD/master/src/main/xsd/logback.xsd
+						">
+	<appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%red([%d{dd-MMM-yyyy HH:mm:ss.SSS}]) %green([%-5p]) [%-13t] %blue([%c:%L]) : %m%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="File"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<encoder>
+			<pattern>[%d{dd-MMM-yyyy HH:mm:ss.SSS}] [%5p] [%t] [%c:%L] : %m%n</pattern>
+		</encoder>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>Sum App Logs/Market Service Logs/Market-%d{dd-MMM-yyyy}.log</fileNamePattern>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+	</appender>
+	<root level="info">
+		<appender-ref ref="Console" />
+		<appender-ref ref="File" />
+	</root>
+</configuration>
