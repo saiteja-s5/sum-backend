@@ -20,6 +20,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring-cloud.version>2023.0.1</spring-cloud.version>
 		<maven.compile.plugin.version>3.11.0</maven.compile.plugin.version>
+		<maven.resource.plugin.version>3.3.1</maven.resource.plugin.version>
 	</properties>
 
 	<modules>
@@ -80,6 +81,24 @@
 		</dependency>
 	</dependencies>
 
+	<profiles>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<activatedProfile>dev</activatedProfile>
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
+		<profile>
+			<id>prod</id>
+			<properties>
+				<activatedProfile>prod</activatedProfile>
+			</properties>
+		</profile>
+	</profiles>
+
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -106,7 +125,18 @@
 				<version>2.2</version>
 				<configuration>
 					<update>true</update>
-					<url>${release.server}/manager/text</url> 
+					<url>${release.server}/manager/text</url>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>${maven.resource.plugin.version}</version>
+				<configuration>
+					<delimiters>
+						<delimiter>@</delimiter>
+					</delimiters>
+					<useDefaultDelimiters>false</useDefaultDelimiters>
 				</configuration>
 			</plugin>
 		</plugins>
