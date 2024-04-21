@@ -1,0 +1,14 @@
+{
+	"properties": [
+		{
+			"name": "sum.inventory.method-in-out-logs-enabled",
+			"type": "java.lang.Boolean",
+			"description": "A description for 'sum.inventory.method-in-out-logs-enabled'"
+		},
+		{
+			"name": "sum.inventory.method-execution-time-logs-enabled",
+			"type": "java.lang.Boolean",
+			"description": "A description for 'sum.inventory.method-execution-time-logs-enabled'"
+		}
+	]
+}
