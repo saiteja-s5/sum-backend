@@ -19,4 +19,9 @@ public class StockDTO {
 	private LocalDate investmentDate;
 	private BigDecimal buyPrice;
 
+	@Override
+	public String toString() {
+		return stockId + "," + stockName + "," + stockSymbol + "," + quantity + "," + investmentDate + "," + buyPrice;
+	}
+
 }
