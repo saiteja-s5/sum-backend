@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import building.sum.inventory.dto.StockDTO;
+import building.sum.inventory.dto.StockDashboardDTO;
 import building.sum.inventory.model.Stock;
 import building.sum.inventory.service.StockService;
 import jakarta.validation.Valid;
@@ -56,6 +57,12 @@ public class StockController {
 	public void deleteStock(@PathVariable Long stockId) {
 		log.info("Request received to delete stock with Id - {}", stockId);
 		stockService.deleteStock(stockId);
+	}
+
+	@GetMapping("/dashboard")
+	public ResponseEntity<StockDashboardDTO> getCurrentHoldings() {
+		log.info("Request received to get current holdings");
+		return new ResponseEntity<>(stockService.getCurrentHoldings(), HttpStatus.OK);
 	}
 
 }

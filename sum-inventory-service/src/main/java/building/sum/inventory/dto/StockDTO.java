@@ -1,7 +1,7 @@
 package building.sum.inventory.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +16,7 @@ public class StockDTO {
 	private String stockName;
 	private String stockSymbol;
 	private Integer quantity;
-	private LocalDate investmentDate;
+	private LocalDateTime investmentDate;
 	private BigDecimal buyPrice;
 
 	@Override

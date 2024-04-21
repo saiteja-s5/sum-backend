@@ -2,6 +2,7 @@ package building.sum.inventory.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +21,14 @@ public class StockDashboardRowDTO {
 
 	private String stockName;
 	private Integer quantity;
-	private LocalDate buyDate;
+	private LocalDateTime buyDate;
 	private BigDecimal buyPrice;
 	private BigDecimal buyValue;
 	private Period holdDuration;
 	private BigDecimal onePercentTarget;
 	private BigDecimal twoPercentTarget;
 
-	public StockDashboardRowDTO(String stockName, Integer quantity, LocalDate buyDate, BigDecimal buyPrice) {
+	public StockDashboardRowDTO(String stockName, Integer quantity, LocalDateTime buyDate, BigDecimal buyPrice) {
 		super();
 		this.stockName = stockName;
 		this.quantity = quantity;
@@ -48,7 +49,7 @@ public class StockDashboardRowDTO {
 	}
 
 	private Period holdDuration() {
-		return Period.between(buyDate, LocalDate.now());
+		return Period.between(buyDate.toLocalDate(), LocalDate.now());
 	}
 
 	private BigDecimal onePercentTarget() {

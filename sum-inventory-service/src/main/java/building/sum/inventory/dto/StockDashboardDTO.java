@@ -13,7 +13,7 @@ import lombok.Setter;
 @Builder
 public class StockDashboardDTO {
 
-	private List<StockDashboardDTO> stocks;
+	private List<StockDashboardRowDTO> stocks;
 	private BigDecimal totalStockInvestmentValue;
 	private BigDecimal totalStockCurrentValue;
 	private BigDecimal totalStockCurrentReturn;

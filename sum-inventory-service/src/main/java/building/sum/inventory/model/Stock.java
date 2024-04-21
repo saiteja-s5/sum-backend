@@ -1,7 +1,6 @@
 package building.sum.inventory.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -49,7 +48,7 @@ public class Stock {
 	@NotNull(message = "{mandatory}")
 	@PastOrPresent(message = "{future}")
 	@Column(name = "investment_date", nullable = false)
-	private LocalDate investmentDate;
+	private LocalDateTime investmentDate;
 
 	@NotNull(message = "{mandatory}")
 	@Min(value = 1, message = "{numeric-minimum}")
