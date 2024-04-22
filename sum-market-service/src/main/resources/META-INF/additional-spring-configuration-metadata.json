@@ -1,0 +1,44 @@
+{
+	"properties": [
+		{
+			"name": "request.crumb",
+			"type": "java.lang.String",
+			"description": "A description for 'request.crumb'"
+		},
+		{
+			"name": "request.cookie",
+			"type": "java.lang.String",
+			"description": "A description for 'request.cookie'"
+		},
+		{
+			"name": "request.scheme",
+			"type": "java.lang.String",
+			"description": "A description for 'request.scheme'"
+		},
+		{
+			"name": "request.host",
+			"type": "java.lang.String",
+			"description": "A description for 'request.host'"
+		},
+		{
+			"name": "request.quote-path",
+			"type": "java.lang.String",
+			"description": "A description for 'request.quote-path'"
+		},
+		{
+			"name": "request.historical-quote-path",
+			"type": "java.lang.String",
+			"description": "A description for 'request.historical-quote-path'"
+		},
+		{
+			"name": "daily-market.scheduler-time",
+			"type": "java.lang.String",
+			"description": "A description for 'daily-market.scheduler-time'"
+		},
+		{
+			"name": "daily-market.scheduler-enabled",
+			"type": "java.lang.Boolean",
+			"description": "A description for 'daily-market.scheduler-enabled'"
+		}
+	]
+}
