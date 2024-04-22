@@ -1,13 +1,13 @@
-package building.sum.inventory.dto;
+package building.sum.market.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 
-import building.sum.inventory.model.Market;
-import building.sum.inventory.model.Stock;
-import building.sum.inventory.utility.SumUtility;
+import building.sum.market.model.Market;
+import building.sum.market.model.Stock;
+import building.sum.market.utility.SumUtility;
 import lombok.Getter;
 import lombok.Setter;
 

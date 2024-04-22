@@ -86,7 +86,7 @@ public class StockServiceImpl implements StockService {
 		}
 	}
 
-	// TODO 4 Values need to be filled after market integration is done
+	// TODO 3 Values filled by market integration is and 1 value by Misc table
 	@Override
 	public StockDashboardDTO getCurrentHoldings() {
 		try {

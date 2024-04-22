@@ -1,4 +1,4 @@
-package building.sum.inventory.model;
+package building.sum.market.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

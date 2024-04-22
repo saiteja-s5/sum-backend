@@ -1,4 +1,4 @@
-package building.sum.inventory.utility;
+package building.sum.market.utility;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
