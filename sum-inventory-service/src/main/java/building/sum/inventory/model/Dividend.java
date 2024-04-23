@@ -32,7 +32,7 @@ import lombok.Setter;
 public class Dividend {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "dividend_id")
 	private Long dividendId;
 

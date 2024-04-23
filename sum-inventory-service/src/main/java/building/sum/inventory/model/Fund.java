@@ -32,7 +32,7 @@ import lombok.Setter;
 public class Fund {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "fund_id")
 	private Long fundId;
 

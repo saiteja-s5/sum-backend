@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -33,7 +35,7 @@ import lombok.Setter;
 public class Stock {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "stock_id")
 	private Long stockId;
 
@@ -45,6 +47,7 @@ public class Stock {
 	@Column(name = "stock_symbol", length = 10, nullable = false)
 	private String stockSymbol;
 
+	@Enumerated(EnumType.STRING)
 	@NotEmpty(message = "{mandatory}")
 	@Column(name = "bought_market", length = 10, nullable = false)
 	private Market boughtMarket;
