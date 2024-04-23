@@ -1,7 +1,5 @@
 package building.sum.market.controller;
 
-import java.util.Optional;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -28,11 +26,13 @@ public class DailyMarketController {
 	private final DailyMarketService dailyMarketService;
 
 	@GetMapping("/quote")
-	public ResponseEntity<YahooQuoteDTO> getStockQuote(@RequestParam Optional<Market> market,
+	public ResponseEntity<YahooQuoteDTO> getStockQuote(@RequestParam(required = false) Market market,
 			@RequestParam String symbol) {
-		Market tempMarket = market.isPresent() ? market.get() : Market.NSE;
-		log.info("Request received to fetch stock - {} data from market - {}", symbol, tempMarket);
-		return new ResponseEntity<>(dailyMarketService.getQuote(tempMarket, symbol), HttpStatus.OK);
+		if (market == null) {
+			market = Market.NSE;
+		}
+		log.info("Request received to fetch stock - {} data from market - {}", symbol, market);
+		return new ResponseEntity<>(dailyMarketService.getQuote(market, symbol), HttpStatus.OK);
 	}
 
 }
