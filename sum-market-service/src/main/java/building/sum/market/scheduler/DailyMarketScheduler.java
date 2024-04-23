@@ -1,7 +1,5 @@
 package building.sum.market.scheduler;
 
-import java.math.BigDecimal;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +9,8 @@ import org.springframework.stereotype.Component;
 
 import building.sum.market.dto.StockDashboardDTO;
 import building.sum.market.model.SchedulerType;
-import building.sum.market.service.DailyMarketService;
+import building.sum.market.service.DashboardService;
 import building.sum.market.utility.SchedulerLogWriter;
-import building.sum.market.utility.SumUtility;
 
 @Component
 public class DailyMarketScheduler {
@@ -24,7 +21,7 @@ public class DailyMarketScheduler {
 	private static final Logger log = LogManager.getLogger();
 
 	@Autowired
-	private DailyMarketService marketService;
+	private DashboardService dashboardService;
 
 	@Autowired
 	private SchedulerLogWriter logWriter;
@@ -40,18 +37,7 @@ public class DailyMarketScheduler {
 				logContent = "Fetching Daily data of Current Holdings";
 				logWriter.writeLog(logContent, type);
 				log.info(logContent);
-				// TODO Get current holdings
-				StockDashboardDTO holdings = StockDashboardDTO.builder().build();
-				double totalInvestmentValue = holdings.getTotalStockInvestmentValue().doubleValue();
-				double currentValue = holdings.getStocks().stream()
-						.map(stock -> marketService.getQuote(stock.getMarket(), stock.getStockSymbol())
-								.getRegularMarketPrice().doubleValue() * stock.getQuantity())
-						.reduce(0.0, (p1, p2) -> p1 + p2);
-				double currentReturn = currentValue - totalInvestmentValue;
-				BigDecimal currentReturnPercentage = SumUtility.getPercentageReturn(totalInvestmentValue, currentValue);
-				holdings.setTotalStockCurrentValue(BigDecimal.valueOf(currentValue));
-				holdings.setTotalStockCurrentReturn(BigDecimal.valueOf(currentReturn));
-				holdings.setTotalStockCurrentReturnPercent(currentReturnPercentage);
+				StockDashboardDTO holdings = dashboardService.getCurrentHoldings();
 				// TODO Send Email with holdings data
 				logContent = "Fetching of Daily data completed";
 				logWriter.writeLog(logContent, type);
