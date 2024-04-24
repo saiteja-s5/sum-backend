@@ -1,6 +1,5 @@
-package building.sum.inventory.model;
+package building.sum.notification.model;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -9,8 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -28,30 +25,38 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "funds")
-public class Fund {
+@Table(name = "email_sent_info")
+public class EmailSentInfo {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "fund_id")
-	private Long fundId;
+	@Column(name = "email_sent_info_key")
+	private Long emailSentInfoKey;
+
+	@NotNull(message = "{mandatory}")
+	@Column(name = "email_key", nullable = false)
+	private Integer emailKey;
 
 	@NotNull(message = "{mandatory}")
 	@PastOrPresent(message = "{future}")
-	@Column(name = "transaction_date", nullable = false)
-	private LocalDateTime transactionDate;
+	@Column(name = "email_sent_date_time", nullable = false)
+	private LocalDateTime emailSentDateTime;
+
+	@NotEmpty(message = "{mandatory}")
+	@Column(name = "email_sent_to", length = 200, nullable = false)
+	private String emailSentTo;
+
+	@NotEmpty(message = "{mandatory}")
+	@Column(name = "email_sent_from", length = 50, nullable = false)
+	private String emailSentFrom;
+
+	@NotEmpty(message = "{mandatory}")
+	@Column(name = "email_sent_status", length = 50, nullable = false)
+	private String emailSentStatus;
 
 	@NotNull(message = "{mandatory}")
-	@Digits(integer = 10, fraction = 2, message = "{decimal-places}")
-	@DecimalMin(value = "0.01", message = "{decimal-minimum-2-digits}")
-	@Column(name = "credited_amount", nullable = false)
-	private BigDecimal creditedAmount;
-
-	@NotNull(message = "{mandatory}")
-	@Digits(integer = 10, fraction = 2, message = "{decimal-places}")
-	@DecimalMin(value = "0.01", message = "{decimal-minimum-2-digits}")
-	@Column(name = "debited_amount", nullable = false)
-	private BigDecimal debitedAmount;
+	@Column(name = "is_active", nullable = false)
+	private Integer isActive;
 
 	@NotNull(message = "{mandatory}")
 	@PastOrPresent(message = "{future}")
@@ -62,14 +67,10 @@ public class Fund {
 	@Column(name = "created_by", length = 50, nullable = false)
 	private String createdBy;
 
-	@NotEmpty(message = "{mandatory}")
-	@Column(name = "user_join_key", length = 10, nullable = false)
-	private String userJoinKey;
-
 	@Override
 	public String toString() {
-		return fundId + "," + transactionDate + "," + creditedAmount + "," + debitedAmount + "," + createdBy + ","
-				+ createdDateTime;
+		return emailSentInfoKey + "," + emailKey + "," + emailSentDateTime + "," + emailSentTo + "," + emailSentFrom
+				+ "," + emailSentStatus;
 	}
 
 }
