@@ -12,7 +12,7 @@
 	</parent>
 
 	<artifactId>sum-market-service</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 
 	<name>sum-market-service</name>
 	<description>SUM - Wealth Management App Market Integration Module</description>

@@ -12,7 +12,7 @@
 	</parent>
 
 	<artifactId>sum-service-registry</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 
 	<name>sum-service-registry</name>
 	<description>SUM - Wealth Management App Service Registry Module</description>

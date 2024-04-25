@@ -1,8 +1,12 @@
+#Server Properties
+server:
+ port: 5555
+
 #Eureka Properties
 eureka:
  client:
   service-url:
-   defaultZone: http://localhost:5050/sum-service-registry/eureka
+   defaultZone: http://localhost:5050/eureka
 
 #Gateway Routing Properties            
 spring:
@@ -11,18 +15,18 @@ spring:
       mvc:
         routes:
         - id: sum-inventory-service
-          uri: lb://sum-inventory-service:5050
+          uri: lb://sum-inventory-service
           predicates:
           - Path=/dividends/**
           - Path=/funds/**
           - Path=/stocks/**
           
         - id: sum-market-service
-          uri: lb://sum-market-service:5050
+          uri: lb://sum-market-service
           predicates:
           - Path=/daily-market/**
           
         - id: sum-notification-service
-          uri: lb://sum-notification-service:5050
+          uri: lb://sum-notification-service
           predicates:
           - Path=/notify-email/**

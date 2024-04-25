@@ -12,7 +12,7 @@
 	</parent>
 
 	<artifactId>sum-api-gateway</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 
 	<name>sum-api-gateway</name>
 	<description>SUM - Wealth Management App API Gateway Module</description>
