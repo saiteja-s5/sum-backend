@@ -26,13 +26,16 @@ public class DailyMarketController {
 	private final DailyMarketService dailyMarketService;
 
 	@GetMapping("/quote")
-	public ResponseEntity<YahooQuoteDTO> getStockQuote(@RequestParam(required = false) Market market,
+	public ResponseEntity<YahooQuoteDTO> getStockQuote(@RequestParam(required = false) String market,
 			@RequestParam String symbol) {
+		Market marketEnum;
 		if (market == null) {
-			market = Market.NSE;
+			marketEnum = Market.NSE;
+		} else {
+			marketEnum = Market.valueOf(market.toUpperCase());
 		}
 		log.info("Request received to fetch stock - {} data from market - {}", symbol, market);
-		return new ResponseEntity<>(dailyMarketService.getQuote(market, symbol), HttpStatus.OK);
+		return new ResponseEntity<>(dailyMarketService.getQuote(marketEnum, symbol), HttpStatus.OK);
 	}
 
 }
