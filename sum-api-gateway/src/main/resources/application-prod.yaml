@@ -1,12 +1,12 @@
 #Server Properties
 server:
- port: 5555
+ port: 6565
 
 #Eureka Properties
 eureka:
  client:
   service-url:
-   defaultZone: http://localhost:5050/eureka
+   defaultZone: http://localhost:6060/eureka
 
 #Gateway Routing Properties            
 spring:
