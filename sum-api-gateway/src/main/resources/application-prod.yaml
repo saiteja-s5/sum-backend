@@ -1,0 +1,26 @@
+#Eureka Properties
+eureka:
+    client:
+        service-url:
+            defaultZone: http://localhost:5050/sum-service-registry/eureka
+
+#Gateway Routing Properties            
+spring:
+    cloud:
+        gateway:
+            mvc:
+                routes:
+                -   id: sum-inventory-service
+                    predicates:
+                    - Path=/dividends/**
+                    - Path=/funds/**
+                    - Path=/stocks/**
+                    uri: lb://sum-inventory-service
+                -   id: sum-market-service
+                    predicates:
+                    - Path=/daily-market/**
+                    uri: lb://sum-market-service
+                -   id: sum-notification-service
+                    predicates:
+                    - Path=/notify-email/**
+                    uri: lb://sum-notification-service
