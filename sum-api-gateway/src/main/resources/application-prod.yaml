@@ -7,26 +7,3 @@ eureka:
  client:
   service-url:
    defaultZone: http://localhost:6060/eureka
-
-#Gateway Routing Properties            
-spring:
-  cloud:
-    gateway:
-      mvc:
-        routes:
-        - id: sum-inventory-service
-          uri: lb://sum-inventory-service
-          predicates:
-          - Path=/dividends/**
-          - Path=/funds/**
-          - Path=/stocks/**
-          
-        - id: sum-market-service
-          uri: lb://sum-market-service
-          predicates:
-          - Path=/daily-market/**
-          
-        - id: sum-notification-service
-          uri: lb://sum-notification-service
-          predicates:
-          - Path=/notify-email/**
