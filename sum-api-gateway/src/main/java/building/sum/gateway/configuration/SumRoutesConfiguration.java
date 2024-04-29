@@ -11,9 +11,8 @@ public class SumRoutesConfiguration {
 	@Bean
 	RouteLocator sumMicroserviceRoutes(RouteLocatorBuilder builder) {
 		return builder.routes()
-				.route("sum-inventory-service", r -> r.path("/stocks/**").uri("lb://sum-inventory-service"))
-				.route("sum-inventory-service", r -> r.path("/funds/**").uri("lb://sum-inventory-service"))
-				.route("sum-inventory-service", r -> r.path("/dividends/**").uri("lb://sum-inventory-service"))
+				.route("sum-inventory-service",
+						r -> r.path("/stocks/**", "/funds/**", "/dividends/**").uri("lb://sum-inventory-service"))
 				.route("sum-market-service", r -> r.path("/daily-market/**").uri("lb://sum-market-service")).build();
 	}
 
