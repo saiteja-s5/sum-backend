@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import building.sum.market.dto.StockDashboardDTO;
 import building.sum.market.dto.YahooQuoteDTO;
 import building.sum.market.model.Market;
 import building.sum.market.service.DailyMarketService;
+import building.sum.market.service.DashboardService;
 import lombok.AllArgsConstructor;
 
 @CrossOrigin
@@ -25,6 +27,8 @@ public class DailyMarketController {
 
 	private final DailyMarketService dailyMarketService;
 
+	private final DashboardService dashboardService;
+
 	@GetMapping("/quote")
 	public ResponseEntity<YahooQuoteDTO> getStockQuote(@RequestParam(required = false) String market,
 			@RequestParam String symbol) {
@@ -36,6 +40,12 @@ public class DailyMarketController {
 		}
 		log.info("Request received to fetch stock - {} data from market - {}", symbol, market);
 		return new ResponseEntity<>(dailyMarketService.getQuote(marketEnum, symbol.toUpperCase()), HttpStatus.OK);
+	}
+
+	@GetMapping("/dashboard")
+	public ResponseEntity<StockDashboardDTO> getCurrentHoldings() {
+		log.info("Request received to get current holdings");
+		return new ResponseEntity<>(dashboardService.getCurrentHoldings(), HttpStatus.OK);
 	}
 
 }
