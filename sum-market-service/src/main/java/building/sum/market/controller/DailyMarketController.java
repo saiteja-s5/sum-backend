@@ -35,7 +35,7 @@ public class DailyMarketController {
 			marketEnum = Market.valueOf(market.toUpperCase());
 		}
 		log.info("Request received to fetch stock - {} data from market - {}", symbol, market);
-		return new ResponseEntity<>(dailyMarketService.getQuote(marketEnum, symbol), HttpStatus.OK);
+		return new ResponseEntity<>(dailyMarketService.getQuote(marketEnum, symbol.toUpperCase()), HttpStatus.OK);
 	}
 
 }
