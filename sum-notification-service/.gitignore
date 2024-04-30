@@ -34,3 +34,6 @@ build/
 
 ### Logs ###
 /Sum App Logs/
+
+### Email Properties ###
+/src/main/resources/email.properties

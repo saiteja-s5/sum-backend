@@ -3,19 +3,16 @@ package building.sum.inventory.service;
 import java.util.List;
 
 import building.sum.inventory.dto.StockDTO;
-import building.sum.inventory.dto.StockDashboardDTO;
 import building.sum.inventory.model.Stock;
 
 public interface StockService {
 
 	void postStock(Stock stock);
 
-	StockDTO getStock(Long stockId);
+	StockDTO getStock(String userJoinKey, Long stockId);
 
-	List<StockDTO> getStocks();
+	List<StockDTO> getStocks(String userJoinKey);
 
-	void deleteStock(Long stockId);
-
-	StockDashboardDTO getCurrentHoldings();
+	void deleteStock(String userJoinKey, Long stockId);
 
 }

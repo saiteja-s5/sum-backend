@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import building.sum.inventory.dto.DividendDTO;
-import building.sum.inventory.dto.DividendDashboardDTO;
 import building.sum.inventory.model.Dividend;
 import building.sum.inventory.service.DividendService;
 import jakarta.validation.Valid;
@@ -40,29 +39,23 @@ public class DividendController {
 		dividendService.postDividend(dividend);
 	}
 
-	@GetMapping("/{dividendId}")
-	public ResponseEntity<DividendDTO> getDividend(@PathVariable Long dividendId) {
-		log.info("Request received to get dividend with Id - {}", dividendId);
-		return new ResponseEntity<>(dividendService.getDividend(dividendId), HttpStatus.OK);
+	@GetMapping("/{userJoinKey}/{dividendId}")
+	public ResponseEntity<DividendDTO> getDividend(@PathVariable String userJoinKey, @PathVariable Long dividendId) {
+		log.info("Request received to get dividend with Id - {} for user - {}", dividendId, userJoinKey);
+		return new ResponseEntity<>(dividendService.getDividend(userJoinKey, dividendId), HttpStatus.OK);
 	}
 
-	@GetMapping()
-	public ResponseEntity<List<DividendDTO>> getDividends() {
-		log.info("Request received to get all dividends");
-		return new ResponseEntity<>(dividendService.getDividends(), HttpStatus.OK);
+	@GetMapping("/{userJoinKey}")
+	public ResponseEntity<List<DividendDTO>> getDividends(@PathVariable String userJoinKey) {
+		log.info("Request received to get all dividends for user - {}", userJoinKey);
+		return new ResponseEntity<>(dividendService.getDividends(userJoinKey), HttpStatus.OK);
 	}
 
-	@DeleteMapping()
+	@DeleteMapping("/{userJoinKey}/{dividendId}")
 	@ResponseStatus(code = HttpStatus.OK)
-	public void deleteDividend(@PathVariable Long dividendId) {
-		log.info("Request received to delete dividend with Id - {}", dividendId);
-		dividendService.deleteDividend(dividendId);
-	}
-
-	@GetMapping("/dashboard")
-	public ResponseEntity<DividendDashboardDTO> getCurrentEarnings() {
-		log.info("Request received to get current dividend earnings");
-		return new ResponseEntity<>(dividendService.getCurrentEarnings(), HttpStatus.OK);
+	public void deleteDividend(@PathVariable String userJoinKey, @PathVariable Long dividendId) {
+		log.info("Request received to delete dividend with Id - {} for user - {}", dividendId, userJoinKey);
+		dividendService.deleteDividend(userJoinKey, dividendId);
 	}
 
 }

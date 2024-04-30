@@ -11,7 +11,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 public class SumReportServiceApplication {
 
 	private static final Logger log = LogManager.getLogger();
-	
+
 	public static void main(String[] args) {
 		SpringApplication.run(SumReportServiceApplication.class, args);
 		log.info("SUM Wealth Monitoring App Reports Service started");

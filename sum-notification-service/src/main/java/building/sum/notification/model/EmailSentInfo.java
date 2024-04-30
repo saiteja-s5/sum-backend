@@ -50,9 +50,9 @@ public class EmailSentInfo {
 	@Column(name = "email_sent_from", length = 50, nullable = false)
 	private String emailSentFrom;
 
-	@NotEmpty(message = "{mandatory}")
-	@Column(name = "email_sent_status", length = 50, nullable = false)
-	private String emailSentStatus;
+	@NotNull(message = "{mandatory}")
+	@Column(name = "email_sent_status", nullable = false)
+	private Integer emailSentStatus;
 
 	@NotNull(message = "{mandatory}")
 	@Column(name = "is_active", nullable = false)

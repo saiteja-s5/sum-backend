@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,15 +21,21 @@ import org.apache.pdfbox.pdmodel.encryption.StandardProtectionPolicy;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.Builder;
 
 import building.sum.report.dto.StockDashboardDTO;
 import building.sum.report.exception.ResourceGenerationFailedException;
+import building.sum.report.exception.ResourceNotFoundException;
+import building.sum.report.model.AppDetails;
+import building.sum.report.model.User;
 import building.sum.report.service.PdfReportService;
+import building.sum.report.service.repository.AppDetailsRepository;
+import building.sum.report.service.repository.UserRepository;
+import building.sum.report.service.utility.SumUtility;
 
 @Service
 public class PdfReportServiceImpl implements PdfReportService {
@@ -39,11 +46,22 @@ public class PdfReportServiceImpl implements PdfReportService {
 
 	private final DateTimeFormatter dateTimeFormatterWithTime = DateTimeFormatter.ofPattern("dd-MM-yyyy, hh:mm a");
 
-	@Autowired
 	private ResourceLoader loader;
 
-	@Autowired
 	private WebClient.Builder webClientBuilder;
+
+	private UserRepository userRepository;
+
+	private AppDetailsRepository appDetailsRepository;
+
+	public PdfReportServiceImpl(ResourceLoader loader, Builder webClientBuilder, UserRepository userRepository,
+			AppDetailsRepository appDetailsRepository) {
+		super();
+		this.loader = loader;
+		this.webClientBuilder = webClientBuilder;
+		this.userRepository = userRepository;
+		this.appDetailsRepository = appDetailsRepository;
+	}
 
 	@Value("${pdf.author-name}")
 	private String author;
@@ -82,7 +100,26 @@ public class PdfReportServiceImpl implements PdfReportService {
 	private Integer bodySmallFontSize;
 
 	@Override
-	public byte[] generateAfterMarketPdfReport() {
+	public byte[] generateAfterMarketPdfReport(String userJoinKey) {
+
+		// User Details Fetch
+		Optional<User> currentUserContainer = userRepository.findByUserJoinKeyIgnoreCase(userJoinKey);
+		User currentUser;
+		if (!currentUserContainer.isPresent()) {
+			throw new ResourceNotFoundException(String.format("User with Join Key - %s not found", userJoinKey));
+		} else {
+			currentUser = currentUserContainer.get();
+		}
+
+		Optional<AppDetails> detailsContainer = appDetailsRepository.findById(SumUtility.TABLE_APP_DETAILS_PK);
+		AppDetails details;
+		if (!detailsContainer.isPresent()) {
+			throw new ResourceNotFoundException(
+					String.format("App Details with Key - %s not found", SumUtility.TABLE_APP_DETAILS_PK));
+		} else {
+			details = detailsContainer.get();
+		}
+
 		try (PDDocument document = new PDDocument()) {
 
 			PDPage page = new PDPage();
@@ -90,8 +127,8 @@ public class PdfReportServiceImpl implements PdfReportService {
 
 			float pageWidth = page.getMediaBox().getWidth();
 			float pageHeight = page.getMediaBox().getHeight();
-			int leftPadding = 20;
-			int topPadding = 10;
+			float leftPadding = 20;
+			float topPadding = 10;
 
 			try (PDPageContentStream stream = new PDPageContentStream(document, page)) {
 
@@ -116,35 +153,34 @@ public class PdfReportServiceImpl implements PdfReportService {
 				// Set User Details
 				stream.beginText();
 				stream.setLeading(lineSpacing);
-				// TODO User Details from DB
 				stream.newLineAtOffset(leftPadding, pageHeight - sumIcon.getHeight() - topPadding - 2 * topPadding);
 
 				stream.setFont(bodyFontBold, bodyFontSize);
 				stream.showText("Name");
 				stream.showText(" : ");
 				stream.setFont(bodyFont, bodyFontSize);
-				stream.showText(creator);
+				stream.showText(currentUser.getFirstName());
 				stream.newLine();
 
 				stream.setFont(bodyFontBold, bodyFontSize);
 				stream.showText("Phone");
 				stream.showText(" : ");
 				stream.setFont(bodyFont, bodyFontSize);
-				stream.showText("9505166056");
+				stream.showText(currentUser.getContactNumber());
 				stream.newLine();
 
 				stream.setFont(bodyFontBold, bodyFontSize);
 				stream.showText("Email");
 				stream.showText(" : ");
 				stream.setFont(bodyFont, bodyFontSize);
-				stream.showText("saithejasabbani1@gmail.com");
+				stream.showText(currentUser.getEmailId());
 				stream.newLine();
 
 				stream.setFont(bodyFontBold, bodyFontSize);
 				stream.showText("Pancard");
 				stream.showText(" : ");
 				stream.setFont(bodyFont, bodyFontSize);
-				stream.showText("BWTPT4086P");
+				stream.showText(currentUser.getPancardNumber());
 				stream.newLine();
 
 				stream.setFont(bodyFontBold, bodyFontSize);
@@ -161,8 +197,6 @@ public class PdfReportServiceImpl implements PdfReportService {
 						.uri("http://sum-market-service/daily-market/dashboard").retrieve()
 						.bodyToMono(StockDashboardDTO.class).block();
 				stream.beginText();
-//				stream.newLineAtOffset(leftPadding, 5 * topPadding);
-//				stream.showText(holdings.toString());
 				stream.endText();
 
 				// Table Summary
@@ -182,7 +216,7 @@ public class PdfReportServiceImpl implements PdfReportService {
 				stream.showText("Place");
 				stream.showText(" : ");
 				stream.setFont(bodyFont, bodySmallFontSize);
-				stream.showText("Hyderabad");
+				stream.showText(details.getAppAddressCity());
 				stream.newLine();
 				stream.endText();
 
@@ -207,11 +241,12 @@ public class PdfReportServiceImpl implements PdfReportService {
 			}
 
 			setInformation(document);
-			setPassword(document);
+			setPassword(document, currentUser, details);
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			document.save(baos);
 			return baos.toByteArray();
+
 		} catch (Exception e) {
 			log.error("After Market PDF not generated");
 			throw new ResourceGenerationFailedException(e.getMessage());
@@ -227,12 +262,12 @@ public class PdfReportServiceImpl implements PdfReportService {
 		information.setTitle(title);
 	}
 
-	private void setPassword(PDDocument document) {
-		// TODO set passwords from dB
+	private void setPassword(PDDocument document, User currentUser, AppDetails details) {
 		try {
 			AccessPermission permissions = new AccessPermission();
 			permissions.setReadOnly();
-			StandardProtectionPolicy policy = new StandardProtectionPolicy("1234", "1111", permissions);
+			StandardProtectionPolicy policy = new StandardProtectionPolicy(details.getAppReportsOwnerPassword(),
+					currentUser.getPancardNumber(), permissions);
 			policy.setEncryptionKeyLength(excryptionKeyLength);
 			document.protect(policy);
 		} catch (IOException e) {

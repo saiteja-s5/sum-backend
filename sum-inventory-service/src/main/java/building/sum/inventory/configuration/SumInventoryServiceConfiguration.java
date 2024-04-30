@@ -9,7 +9,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @Configuration
 public class SumInventoryServiceConfiguration {
 
-	/* Configuration for reading messages from external file - Starts */ 
+	/* Configuration for reading messages from external file - Starts */
 	@Bean
 	MessageSource messageSource() {
 		ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();

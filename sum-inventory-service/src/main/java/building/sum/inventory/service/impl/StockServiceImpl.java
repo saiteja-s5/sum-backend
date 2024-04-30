@@ -1,8 +1,6 @@
 package building.sum.inventory.service.impl;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,8 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import building.sum.inventory.dto.StockDTO;
-import building.sum.inventory.dto.StockDashboardDTO;
-import building.sum.inventory.dto.StockDashboardRowDTO;
 import building.sum.inventory.exception.ResourceNotDeletedException;
 import building.sum.inventory.exception.ResourceNotFoundException;
 import building.sum.inventory.exception.ResourceNotPostedException;
@@ -40,14 +36,14 @@ public class StockServiceImpl implements StockService {
 	}
 
 	@Override
-	public StockDTO getStock(Long stockId) {
+	public StockDTO getStock(String userJoinKey, Long stockId) {
 		try {
-			Optional<Stock> stockContainer = stockRepository.findById(stockId);
+			Optional<Stock> stockContainer = stockRepository.findByUserJoinKeyAndStockId(userJoinKey, stockId);
 			if (stockContainer.isPresent()) {
 				Stock stock = stockContainer.get();
 				return stock2DTO(stock);
 			} else {
-				throw new ResourceNotFoundException(String.format("Stock with Id - %d not found"));
+				throw new ResourceNotFoundException(String.format("Stock with Id - %d not found", stockId));
 			}
 		} catch (Exception e) {
 			log.error("Stock with Id - {} not found", stockId);
@@ -56,9 +52,9 @@ public class StockServiceImpl implements StockService {
 	}
 
 	@Override
-	public List<StockDTO> getStocks() {
+	public List<StockDTO> getStocks(String userJoinKey) {
 		try {
-			List<Stock> savedStocks = stockRepository.findAll();
+			List<Stock> savedStocks = stockRepository.findAllByUserJoinKey(userJoinKey);
 			if (savedStocks.isEmpty()) {
 				log.warn("No stocks found");
 				return new ArrayList<>();
@@ -71,14 +67,14 @@ public class StockServiceImpl implements StockService {
 	}
 
 	@Override
-	public void deleteStock(Long stockId) {
+	public void deleteStock(String userJoinKey, Long stockId) {
 		try {
-			Optional<Stock> savedStock = stockRepository.findById(stockId);
+			Optional<Stock> savedStock = stockRepository.findByUserJoinKeyAndStockId(userJoinKey, stockId);
 			if (savedStock.isPresent()) {
-				stockRepository.deleteById(stockId);
+				stockRepository.deleteByUserJoinKeyAndStockId(userJoinKey, stockId);
 			} else {
 				log.warn("Requested stock with Id - {} not found", stockId);
-				throw new ResourceNotFoundException(String.format("Stock with Id - %d not found"));
+				throw new ResourceNotFoundException(String.format("Stock with Id - %d not found", stockId));
 			}
 		} catch (Exception e) {
 			log.error("Stock with Id - {} not deleted", stockId);
@@ -86,41 +82,11 @@ public class StockServiceImpl implements StockService {
 		}
 	}
 
-	// TODO 3 Values filled by market integration is and 1 value by Misc table
-	// TODO to be moved into market service
-	@Override
-	public StockDashboardDTO getCurrentHoldings() {
-		try {
-			List<StockDashboardRowDTO> stocks = stockRepository.findAll().stream().map(StockDashboardRowDTO::new)
-					.toList();
-			if (!stocks.isEmpty()) {
-				return StockDashboardDTO.builder().stocks(stocks)
-						.totalStockInvestmentValue(BigDecimal.valueOf(stocks.stream()
-								.map(stock -> stock.getBuyValue().doubleValue()).reduce(0.0, (v1, v2) -> v1 + v2)))
-						.totalStockCurrentValue(null).totalStockCurrentReturn(null).totalStockCurrentReturnPercent(null)
-						.totalStockOnePercentTargetValue(BigDecimal
-								.valueOf(stocks.stream().map(stock -> stock.getOnePercentTarget().doubleValue())
-										.reduce(0.0, (v1, v2) -> v1 + v2)))
-						.totalStockTwoPercentTargetValue(BigDecimal
-								.valueOf(stocks.stream().map(stock -> stock.getTwoPercentTarget().doubleValue())
-										.reduce(0.0, (v1, v2) -> v1 + v2)))
-						.stockLastTransactionOn(stocks.stream()
-								.max(Comparator.comparing(StockDashboardRowDTO::getBuyDate)).get().getBuyDate())
-						.stockTableUpdatedOn(null).build();
-			} else {
-				log.warn("No stocks found");
-				return StockDashboardDTO.builder().build();
-			}
-		} catch (Exception e) {
-			log.error("Unable to fetch stocks");
-			throw new ResourceNotFoundException(e.getMessage());
-		}
-	}
-
 	private StockDTO stock2DTO(Stock stock) {
 		return StockDTO.builder().stockId(stock.getStockId()).stockName(stock.getStockName())
-				.stockSymbol(stock.getStockSymbol()).investmentDate(stock.getInvestmentDate())
-				.quantity(stock.getQuantity()).buyPrice(stock.getBuyPrice()).build();
+				.boughtMarket(stock.getBoughtMarket()).stockSymbol(stock.getStockSymbol())
+				.investmentDate(stock.getInvestmentDate()).quantity(stock.getQuantity()).buyPrice(stock.getBuyPrice())
+				.build();
 	}
 
 }

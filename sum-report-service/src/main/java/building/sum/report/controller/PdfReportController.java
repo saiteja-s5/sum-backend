@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,10 +25,11 @@ public class PdfReportController {
 
 	private final PdfReportService pdfReportService;
 
-	@GetMapping("/after-market")
-	public ResponseEntity<byte[]> generateAfterMarketReport() {
-		log.info("Request received to generate after market pdf report on {}", LocalDateTime.now());
-		return new ResponseEntity<>(pdfReportService.generateAfterMarketPdfReport(), HttpStatus.OK);
+	@GetMapping("/after-market/{userJoinKey}")
+	public ResponseEntity<byte[]> generateAfterMarketReport(@PathVariable String userJoinKey) {
+		log.info("Request received to generate after market pdf report on {} for user - {}", LocalDateTime.now(),
+				userJoinKey);
+		return new ResponseEntity<>(pdfReportService.generateAfterMarketPdfReport(userJoinKey), HttpStatus.OK);
 	}
 
 }

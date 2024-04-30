@@ -16,7 +16,9 @@ public class SumRoutesConfiguration {
 				.route("sum-service-registry-static-resources", r -> r.path("/eureka/**").uri("http://localhost:9090"))
 				.route("sum-inventory-service",
 						r -> r.path("/stocks/**", "/funds/**", "/dividends/**").uri("lb://sum-inventory-service"))
-				.route("sum-market-service", r -> r.path("/daily-market/**").uri("lb://sum-market-service"))
+				.route("sum-market-service",
+						r -> r.path("/market/**", "/daily-market/**").uri("lb://sum-market-service"))
+				.route("sum-notification-service", r -> r.path("/email-notify/**").uri("lb://sum-notification-service"))
 				.route("sum-report-service", r -> r.path("/pdf-reports/**").uri("lb://sum-report-service")).build();
 	}
 

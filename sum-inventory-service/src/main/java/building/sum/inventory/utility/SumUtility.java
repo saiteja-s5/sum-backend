@@ -22,6 +22,13 @@ public class SumUtility {
 
 	public static final LocalDate EPOCH_SECOND_EXCEEDS_INTEGER_ON = LocalDate.of(2038, 1, 19);
 
+	public static final String TABLE_UPDATES_PK = "SUM-TABLE-UPDATES";
+
+	public static final String TABLE_APP_DETAILS_PK = "SUM-APP-DETAILS";
+
+	private SumUtility() {
+	}
+
 	public static BigDecimal getPercentTarget(Double percent, Period holdDuration, int quantity, Double buyPrice) {
 		int months = holdDuration.getYears() * MONTHS_IN_YEAR + holdDuration.getMonths()
 				+ (holdDuration.getDays() > 0 ? 1 : 0);

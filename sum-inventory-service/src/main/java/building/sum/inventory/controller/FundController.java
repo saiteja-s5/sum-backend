@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import building.sum.inventory.dto.FundDTO;
-import building.sum.inventory.dto.FundDashboardDTO;
 import building.sum.inventory.model.Fund;
 import building.sum.inventory.service.FundService;
 import jakarta.validation.Valid;
@@ -40,29 +39,23 @@ public class FundController {
 		fundService.postFund(fund);
 	}
 
-	@GetMapping("/{fundId}")
-	public ResponseEntity<FundDTO> getFund(@PathVariable Long fundId) {
-		log.info("Request received to get fund with Id - {}", fundId);
-		return new ResponseEntity<>(fundService.getFund(fundId), HttpStatus.OK);
+	@GetMapping("/{userJoinKey}/{fundId}")
+	public ResponseEntity<FundDTO> getFund(@PathVariable String userJoinKey, @PathVariable Long fundId) {
+		log.info("Request received to get fund with Id - {} for user - {}", fundId, userJoinKey);
+		return new ResponseEntity<>(fundService.getFund(userJoinKey, fundId), HttpStatus.OK);
 	}
 
-	@GetMapping()
-	public ResponseEntity<List<FundDTO>> getFunds() {
-		log.info("Request received to get all funds");
-		return new ResponseEntity<>(fundService.getFunds(), HttpStatus.OK);
+	@GetMapping("/{userJoinKey}")
+	public ResponseEntity<List<FundDTO>> getFunds(@PathVariable String userJoinKey) {
+		log.info("Request received to get all funds for user - {}", userJoinKey);
+		return new ResponseEntity<>(fundService.getFunds(userJoinKey), HttpStatus.OK);
 	}
 
-	@DeleteMapping()
+	@DeleteMapping("/{userJoinKey}/{fundId}")
 	@ResponseStatus(code = HttpStatus.OK)
-	public void deleteFund(@PathVariable Long fundId) {
-		log.info("Request received to delete fund with Id - {}", fundId);
-		fundService.deleteFund(fundId);
-	}
-
-	@GetMapping("/dashboard")
-	public ResponseEntity<FundDashboardDTO> getTillDateFunds() {
-		log.info("Request received to get all funds till date");
-		return new ResponseEntity<>(fundService.getTillDateFunds(), HttpStatus.OK);
+	public void deleteFund(@PathVariable String userJoinKey, @PathVariable Long fundId) {
+		log.info("Request received to delete fund with Id - {} for user - {}", fundId, userJoinKey);
+		fundService.deleteFund(userJoinKey, fundId);
 	}
 
 }

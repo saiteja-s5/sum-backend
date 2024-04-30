@@ -1,8 +1,6 @@
 package building.sum.inventory.service.impl;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,8 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import building.sum.inventory.dto.FundDTO;
-import building.sum.inventory.dto.FundDashboardDTO;
-import building.sum.inventory.dto.FundDashboardRowDTO;
 import building.sum.inventory.exception.ResourceNotDeletedException;
 import building.sum.inventory.exception.ResourceNotFoundException;
 import building.sum.inventory.exception.ResourceNotPostedException;
@@ -40,14 +36,14 @@ public class FundServiceImpl implements FundService {
 	}
 
 	@Override
-	public FundDTO getFund(Long fundId) {
+	public FundDTO getFund(String userJoinKey, Long fundId) {
 		try {
-			Optional<Fund> fundContainer = fundRepository.findById(fundId);
+			Optional<Fund> fundContainer = fundRepository.findByUserJoinKeyAndFundId(userJoinKey, fundId);
 			if (fundContainer.isPresent()) {
 				Fund fund = fundContainer.get();
 				return fund2DTO(fund);
 			} else {
-				throw new ResourceNotFoundException(String.format("Fund with Id - %d not found"));
+				throw new ResourceNotFoundException(String.format("Fund with Id - %d not found", fundId));
 			}
 		} catch (Exception e) {
 			log.error("Fund with Id - {} not found", fundId);
@@ -56,9 +52,9 @@ public class FundServiceImpl implements FundService {
 	}
 
 	@Override
-	public List<FundDTO> getFunds() {
+	public List<FundDTO> getFunds(String userJoinKey) {
 		try {
-			List<Fund> savedFunds = fundRepository.findAll();
+			List<Fund> savedFunds = fundRepository.findAllByUserJoinKey(userJoinKey);
 			if (savedFunds.isEmpty()) {
 				log.warn("No funds found");
 				return new ArrayList<>();
@@ -71,43 +67,18 @@ public class FundServiceImpl implements FundService {
 	}
 
 	@Override
-	public void deleteFund(Long fundId) {
+	public void deleteFund(String userJoinKey, Long fundId) {
 		try {
-			Optional<Fund> savedFund = fundRepository.findById(fundId);
+			Optional<Fund> savedFund = fundRepository.findByUserJoinKeyAndFundId(userJoinKey, fundId);
 			if (savedFund.isPresent()) {
-				fundRepository.deleteById(fundId);
+				fundRepository.deleteByUserJoinKeyAndFundId(userJoinKey, fundId);
 			} else {
 				log.warn("Requested fund with Id - {} not found", fundId);
-				throw new ResourceNotFoundException(String.format("Fund with Id - %d not found"));
+				throw new ResourceNotFoundException(String.format("Fund with Id - %d not found", fundId));
 			}
 		} catch (Exception e) {
 			log.error("Fund with Id - {} not deleted", fundId);
 			throw new ResourceNotDeletedException(e.getMessage());
-		}
-	}
-
-	// TODO 1 Value need to be filled after market integration is done
-	@Override
-	public FundDashboardDTO getTillDateFunds() {
-		try {
-			List<FundDashboardRowDTO> funds = fundRepository.findAll().stream().map(FundDashboardRowDTO::new).toList();
-			if (!funds.isEmpty()) {
-				return FundDashboardDTO.builder().funds(funds)
-						.totalCreditedAmount(BigDecimal.valueOf(funds.stream()
-								.map(fund -> fund.getCreditedAmount().doubleValue()).reduce(0.0, (v1, v2) -> v1 + v2)))
-						.totalDebitedAmount(BigDecimal.valueOf(funds.stream()
-								.map(fund -> fund.getDebitedAmount().doubleValue()).reduce(0.0, (v1, v2) -> v1 + v2)))
-						.fundLastTransactionOn(
-								funds.stream().max(Comparator.comparing(FundDashboardRowDTO::getTransactionDate)).get()
-										.getTransactionDate())
-						.fundTableUpdatedOn(null).build();
-			} else {
-				log.warn("No funds found");
-				return FundDashboardDTO.builder().build();
-			}
-		} catch (Exception e) {
-			log.error("Unable to fetch funds");
-			throw new ResourceNotFoundException(e.getMessage());
 		}
 	}
 

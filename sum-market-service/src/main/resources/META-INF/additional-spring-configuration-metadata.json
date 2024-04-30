@@ -31,16 +31,6 @@
 			"description": "A description for 'request.historical-quote-path'"
 		},
 		{
-			"name": "daily-market.scheduler-time",
-			"type": "java.lang.String",
-			"description": "A description for 'daily-market.scheduler-time'"
-		},
-		{
-			"name": "daily-market.scheduler-enabled",
-			"type": "java.lang.Boolean",
-			"description": "A description for 'daily-market.scheduler-enabled'"
-		},
-		{
 			"name": "daily-market.log-path",
 			"type": "java.lang.String",
 			"description": "A description for 'daily-market.log-path'"

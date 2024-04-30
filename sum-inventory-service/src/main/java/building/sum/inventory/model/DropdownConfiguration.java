@@ -46,7 +46,7 @@ public class DropdownConfiguration {
 	private String dropdownValue;
 
 	@Column(name = "dropdown_order")
-	private Integer dropdown_order;
+	private Integer dropdownOrder;
 
 	@NotNull(message = "{mandatory}")
 	@Column(name = "is_active", nullable = false)
@@ -64,7 +64,7 @@ public class DropdownConfiguration {
 	@Override
 	public String toString() {
 		return dropdownKey + "," + dropdownGroup + "," + dropdownDisplayName + "," + dropdownValue + ","
-				+ dropdown_order;
+				+ dropdownOrder;
 	}
 
 }

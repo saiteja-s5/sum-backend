@@ -1,0 +1,14 @@
+{
+	"properties": [
+		{
+			"name": "email.daily-market-email-code",
+			"type": "java.lang.String",
+			"description": "A description for 'email.daily-market-email-code'"
+		},
+		{
+			"name": "email.self-email-reference",
+			"type": "java.lang.String",
+			"description": "A description for 'email.self-email-reference'"
+		}
+	]
+}

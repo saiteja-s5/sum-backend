@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import building.sum.inventory.dto.StockDTO;
-import building.sum.inventory.dto.StockDashboardDTO;
 import building.sum.inventory.model.Stock;
 import building.sum.inventory.service.StockService;
 import jakarta.validation.Valid;
@@ -40,29 +39,23 @@ public class StockController {
 		stockService.postStock(stock);
 	}
 
-	@GetMapping("/{stockId}")
-	public ResponseEntity<StockDTO> getStock(@PathVariable Long stockId) {
-		log.info("Request received to get stock with Id - {}", stockId);
-		return new ResponseEntity<>(stockService.getStock(stockId), HttpStatus.OK);
+	@GetMapping("/{userJoinKey}/{stockId}")
+	public ResponseEntity<StockDTO> getStock(@PathVariable String userJoinKey, @PathVariable Long stockId) {
+		log.info("Request received to get stock with Id - {} for user - {}", stockId, userJoinKey);
+		return new ResponseEntity<>(stockService.getStock(userJoinKey, stockId), HttpStatus.OK);
 	}
 
-	@GetMapping()
-	public ResponseEntity<List<StockDTO>> getStocks() {
-		log.info("Request received to get all stocks");
-		return new ResponseEntity<>(stockService.getStocks(), HttpStatus.OK);
+	@GetMapping("/{userJoinKey}")
+	public ResponseEntity<List<StockDTO>> getStocks(@PathVariable String userJoinKey) {
+		log.info("Request received to get all stocks for user - {}", userJoinKey);
+		return new ResponseEntity<>(stockService.getStocks(userJoinKey), HttpStatus.OK);
 	}
 
-	@DeleteMapping()
+	@DeleteMapping("/{userJoinKey}/{stockId}")
 	@ResponseStatus(code = HttpStatus.OK)
-	public void deleteStock(@PathVariable Long stockId) {
-		log.info("Request received to delete stock with Id - {}", stockId);
-		stockService.deleteStock(stockId);
-	}
-
-	@GetMapping("/dashboard")
-	public ResponseEntity<StockDashboardDTO> getCurrentHoldings() {
-		log.info("Request received to get current holdings");
-		return new ResponseEntity<>(stockService.getCurrentHoldings(), HttpStatus.OK);
+	public void deleteStock(@PathVariable String userJoinKey, @PathVariable Long stockId) {
+		log.info("Request received to delete stock with Id - {} for user - {}", stockId, userJoinKey);
+		stockService.deleteStock(userJoinKey, stockId);
 	}
 
 }
