@@ -22,7 +22,7 @@ public class DailyMarketServiceImpl implements DailyMarketService {
 
 	private final YahooFinanceApiRequestProperties requestProperties;
 
-	private final WebClient.Builder builder;
+	private final WebClient.Builder webClientBuilder;
 
 	@Override
 	public YahooQuoteDTO getQuote(Market market, String symbol) {
@@ -31,7 +31,7 @@ public class DailyMarketServiceImpl implements DailyMarketService {
 				.addParameter("symbols", symbol + market.getExtension())
 				.addParameter("crumb", requestProperties.getCrumb());
 		try {
-			YahooFinanceResponseDTO response = builder.build().get().uri(uriBuilder.build())
+			YahooFinanceResponseDTO response = webClientBuilder.build().get().uri(uriBuilder.build())
 					.header("Cookie", requestProperties.getCookie()).retrieve()
 					.bodyToMono(YahooFinanceResponseDTO.class).block();
 			YahooQuoteDTO fetchedResponse;

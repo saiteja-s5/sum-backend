@@ -1,39 +1,49 @@
 {
-	"properties": [
-		{
-			"name": "request.crumb",
-			"type": "java.lang.String",
-			"description": "A description for 'request.crumb'"
-		},
-		{
-			"name": "request.cookie",
-			"type": "java.lang.String",
-			"description": "A description for 'request.cookie'"
-		},
-		{
-			"name": "request.scheme",
-			"type": "java.lang.String",
-			"description": "A description for 'request.scheme'"
-		},
-		{
-			"name": "request.host",
-			"type": "java.lang.String",
-			"description": "A description for 'request.host'"
-		},
-		{
-			"name": "request.quote-path",
-			"type": "java.lang.String",
-			"description": "A description for 'request.quote-path'"
-		},
-		{
-			"name": "request.historical-quote-path",
-			"type": "java.lang.String",
-			"description": "A description for 'request.historical-quote-path'"
-		},
-		{
-			"name": "daily-market.log-path",
-			"type": "java.lang.String",
-			"description": "A description for 'daily-market.log-path'"
-		}
-	]
+  "properties": [
+    {
+      "name": "request.crumb",
+      "type": "java.lang.String",
+      "description": "A description for 'request.crumb'"
+    },
+    {
+      "name": "request.cookie",
+      "type": "java.lang.String",
+      "description": "A description for 'request.cookie'"
+    },
+    {
+      "name": "request.scheme",
+      "type": "java.lang.String",
+      "description": "A description for 'request.scheme'"
+    },
+    {
+      "name": "request.host",
+      "type": "java.lang.String",
+      "description": "A description for 'request.host'"
+    },
+    {
+      "name": "request.quote-path",
+      "type": "java.lang.String",
+      "description": "A description for 'request.quote-path'"
+    },
+    {
+      "name": "request.historical-quote-path",
+      "type": "java.lang.String",
+      "description": "A description for 'request.historical-quote-path'"
+    },
+    {
+      "name": "daily-market.log-path",
+      "type": "java.lang.String",
+      "description": "A description for 'daily-market.log-path'"
+    },
+    {
+      "name": "after-market.scheduler-time",
+      "type": "java.lang.String",
+      "description": "A description for 'after-market.scheduler-time'"
+    },
+    {
+      "name": "after-market.scheduler-enabled",
+      "type": "java.lang.Booelan",
+      "description": "A description for 'after-market.scheduler-enabled'"
+    }
+  ]
 }

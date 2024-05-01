@@ -1,5 +1,6 @@
 package building.sum.report.service.impl;
 
+import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -192,17 +193,219 @@ public class PdfReportServiceImpl implements PdfReportService {
 				stream.endText();
 
 				// Table Current Holdings
-				// TODO Table
+
+				// Stock Investment Breakdown
 				StockDashboardDTO holdings = webClientBuilder.build().get()
-						.uri("http://sum-market-service/daily-market/dashboard").retrieve()
+						.uri("http://localhost:9595/daily-market/" + userJoinKey + "/dashboard").retrieve()
 						.bodyToMono(StockDashboardDTO.class).block();
+
+				if (holdings != null) {
+
+					stream.beginText();
+					String stockHeading = "Stock Investment Breakdown";
+					stream.newLineAtOffset(leftPadding,
+							pageHeight - sumIcon.getHeight() - topPadding - 17 * topPadding);
+					stream.setNonStrokingColor(Color.BLACK);
+					stream.setFont(bodyFontBold, bodyFontSize * 1.1f);
+					stream.showText(stockHeading);
+					stream.endText();
+
+					stream.beginText();
+					stream.newLineAtOffset(leftPadding,
+							pageHeight - sumIcon.getHeight() - topPadding - 20 * topPadding);
+
+					stream.setNonStrokingColor(Color.BLACK);
+					stream.setFont(bodyFont, bodyFontSize);
+					stream.showText("Total Investment");
+					stream.showText(" : ");
+					stream.setNonStrokingColor(Color.BLUE);
+					stream.setFont(bodyFont, bodyFontSize);
+					stream.showText(Optional.ofNullable(holdings.getTotalStockInvestmentValue()).isPresent()
+							? holdings.getTotalStockInvestmentValue().toString()
+							: "0");
+					stream.newLine();
+
+					stream.setNonStrokingColor(Color.BLACK);
+					stream.setFont(bodyFont, bodyFontSize);
+					stream.showText("Current Return");
+					stream.showText(" : ");
+					stream.setNonStrokingColor(
+							holdings.getTotalStockCurrentReturn().doubleValue() > 0 ? Color.GREEN : Color.RED);
+					stream.setFont(bodyFont, bodyFontSize);
+					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentReturn()).isPresent()
+							? holdings.getTotalStockCurrentReturn().toString()
+							: "0");
+					stream.newLine();
+
+					stream.setNonStrokingColor(Color.BLACK);
+					stream.setFont(bodyFont, bodyFontSize);
+					stream.showText("Current Return %");
+					stream.showText(" : ");
+					stream.setNonStrokingColor(
+							holdings.getTotalStockCurrentReturnPercent().doubleValue() > 0 ? Color.GREEN : Color.RED);
+					stream.setFont(bodyFont, bodyFontSize);
+					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentReturnPercent()).isPresent()
+							? holdings.getTotalStockCurrentReturnPercent().toString()
+							: "0");
+					stream.newLine();
+
+					stream.setNonStrokingColor(Color.BLACK);
+					stream.setFont(bodyFont, bodyFontSize);
+					stream.showText("Current Portfolio Value");
+					stream.showText(" : ");
+					stream.setNonStrokingColor(holdings.getTotalStockCurrentValue().doubleValue() > holdings
+							.getTotalStockInvestmentValue().doubleValue() ? Color.GREEN : Color.RED);
+					stream.setFont(bodyFont, bodyFontSize);
+					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentValue()).isPresent()
+							? holdings.getTotalStockCurrentValue().toString()
+							: "0");
+					stream.newLine();
+
+					stream.endText();
+				}
+
+				// Mutual Fund Investment Breakdown
+				// TODO Mutual Fund Api
+//				StockDashboardDTO holdings = webClientBuilder.build().get()
+//						.uri("http://localhost:9595/daily-market/" + userJoinKey + "/dashboard").retrieve()
+//						.bodyToMono(StockDashboardDTO.class).block();
+
+//				if (holdings != null) {
+
 				stream.beginText();
+				String mutualFundHeading = "Mutual Fund Investment Breakdown";
+				stream.newLineAtOffset(leftPadding, pageHeight - sumIcon.getHeight() - topPadding - 32 * topPadding);
+				stream.setNonStrokingColor(Color.BLACK);
+				stream.setFont(bodyFontBold, bodyFontSize * 1.1f);
+				stream.showText(mutualFundHeading);
 				stream.endText();
+
+				stream.beginText();
+				stream.newLineAtOffset(leftPadding, pageHeight - sumIcon.getHeight() - topPadding - 35 * topPadding);
+
+				stream.setNonStrokingColor(Color.BLACK);
+				stream.setFont(bodyFont, bodyFontSize);
+				stream.showText("Total Investment");
+				stream.showText(" : ");
+				stream.setNonStrokingColor(Color.BLUE);
+				stream.setFont(bodyFont, bodyFontSize);
+				stream.showText("XXX");
+//					stream.showText(Optional.ofNullable(holdings.getTotalStockInvestmentValue()).isPresent()
+//							? holdings.getTotalStockInvestmentValue().toString()
+//							: "0");
+				stream.newLine();
+
+				stream.setNonStrokingColor(Color.BLACK);
+				stream.setFont(bodyFont, bodyFontSize);
+				stream.showText("Current Return");
+				stream.showText(" : ");
+				stream.setNonStrokingColor(
+						holdings.getTotalStockCurrentReturn().doubleValue() > 0 ? Color.GREEN : Color.RED);
+				stream.setFont(bodyFont, bodyFontSize);
+				stream.showText("XXX");
+//					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentReturn()).isPresent()
+//							? holdings.getTotalStockCurrentReturn().toString()
+//							: "0");
+				stream.newLine();
+
+				stream.setNonStrokingColor(Color.BLACK);
+				stream.setFont(bodyFont, bodyFontSize);
+				stream.showText("Current Return %");
+				stream.showText(" : ");
+				stream.setNonStrokingColor(
+						holdings.getTotalStockCurrentReturnPercent().doubleValue() > 0 ? Color.GREEN : Color.RED);
+				stream.setFont(bodyFont, bodyFontSize);
+				stream.showText("XXX");
+//					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentReturnPercent()).isPresent()
+//							? holdings.getTotalStockCurrentReturnPercent().toString()
+//							: "0");
+				stream.newLine();
+
+				stream.setNonStrokingColor(Color.BLACK);
+				stream.setFont(bodyFont, bodyFontSize);
+				stream.showText("Current Portfolio Value");
+				stream.showText(" : ");
+				stream.setNonStrokingColor(holdings.getTotalStockCurrentValue().doubleValue() > holdings
+						.getTotalStockInvestmentValue().doubleValue() ? Color.GREEN : Color.RED);
+				stream.setFont(bodyFont, bodyFontSize);
+				stream.showText("XXX");
+//					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentValue()).isPresent()
+//							? holdings.getTotalStockCurrentValue().toString()
+//							: "0");
+				stream.newLine();
+
+				stream.endText();
+//				}
 
 				// Table Summary
 
+				stream.beginText();
+				String summaryHeading = "Overall Investment Breakdown";
+				stream.newLineAtOffset(leftPadding, pageHeight - sumIcon.getHeight() - topPadding - 47 * topPadding);
+				stream.setNonStrokingColor(Color.BLACK);
+				stream.setFont(bodyFontBold, bodyFontSize * 1.1f);
+				stream.showText(summaryHeading);
+				stream.endText();
+
+				stream.beginText();
+				stream.newLineAtOffset(leftPadding, pageHeight - sumIcon.getHeight() - topPadding - 50 * topPadding);
+
+				stream.setNonStrokingColor(Color.BLACK);
+				stream.setFont(bodyFont, bodyFontSize);
+				stream.showText("Total Investment");
+				stream.showText(" : ");
+				stream.setNonStrokingColor(Color.BLUE);
+				stream.setFont(bodyFont, bodyFontSize);
+				stream.showText("XXX");
+//					stream.showText(Optional.ofNullable(holdings.getTotalStockInvestmentValue()).isPresent()
+//							? holdings.getTotalStockInvestmentValue().toString()
+//							: "0");
+				stream.newLine();
+
+				stream.setNonStrokingColor(Color.BLACK);
+				stream.setFont(bodyFont, bodyFontSize);
+				stream.showText("Current Return");
+				stream.showText(" : ");
+				stream.setNonStrokingColor(
+						holdings.getTotalStockCurrentReturn().doubleValue() > 0 ? Color.GREEN : Color.RED);
+				stream.setFont(bodyFont, bodyFontSize);
+				stream.showText("XXX");
+//					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentReturn()).isPresent()
+//							? holdings.getTotalStockCurrentReturn().toString()
+//							: "0");
+				stream.newLine();
+
+				stream.setNonStrokingColor(Color.BLACK);
+				stream.setFont(bodyFont, bodyFontSize);
+				stream.showText("Current Return %");
+				stream.showText(" : ");
+				stream.setNonStrokingColor(
+						holdings.getTotalStockCurrentReturnPercent().doubleValue() > 0 ? Color.GREEN : Color.RED);
+				stream.setFont(bodyFont, bodyFontSize);
+				stream.showText("XXX");
+//					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentReturnPercent()).isPresent()
+//							? holdings.getTotalStockCurrentReturnPercent().toString()
+//							: "0");
+				stream.newLine();
+
+				stream.setNonStrokingColor(Color.BLACK);
+				stream.setFont(bodyFont, bodyFontSize);
+				stream.showText("Current Portfolio Value");
+				stream.showText(" : ");
+				stream.setNonStrokingColor(holdings.getTotalStockCurrentValue().doubleValue() > holdings
+						.getTotalStockInvestmentValue().doubleValue() ? Color.GREEN : Color.RED);
+				stream.setFont(bodyFont, bodyFontSize);
+				stream.showText("XXX");
+//					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentValue()).isPresent()
+//							? holdings.getTotalStockCurrentValue().toString()
+//							: "0");
+				stream.newLine();
+
+				stream.endText();
+
 				// Signature
 				stream.beginText();
+				stream.setNonStrokingColor(Color.BLACK);
 				stream.setLeading(lineSpacingSmall);
 				stream.newLineAtOffset(leftPadding, 5 * topPadding);
 				stream.setFont(bodyFontBold, bodySmallFontSize);
@@ -242,7 +445,7 @@ public class PdfReportServiceImpl implements PdfReportService {
 
 			setInformation(document);
 			setPassword(document, currentUser, details);
-
+			
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			document.save(baos);
 			return baos.toByteArray();

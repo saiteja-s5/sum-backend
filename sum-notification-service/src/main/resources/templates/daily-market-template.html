@@ -1,19 +1,86 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<title>SUM - Wealth Management App</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>SUM - Wealth Monitoring App</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			color: #151E3D;
+		}
+
+		.container {
+			background-color: #0492C2;
+			border-radius: 10px;
+			height: 500px;
+			width: 400px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin: auto auto;
+		}
+
+		.main {
+			background-color: #FAFAFA;
+			border-radius: 10px;
+			height: 95%;
+			width: 95%;
+			margin: auto auto;
+		}
+
+		.sum-logo {
+			width: 100px;
+		}
+
+		span {
+			margin-left: 20px;
+			margin-bottom: 0px;
+		}
+
+		p {
+			margin-left: 20px;
+			margin-top: 5px;
+		}
+
+		hr {
+			border-top: 2px dashed #151E3D;
+			width: 95%;
+		}
+
+		li {
+			margin: 10px;
+		}
+	</style>
 </head>
 
 <body>
-	<br>
-	<p>Hello from SUM - Wealth Monitoring App!</p>
-	<br>
-	Daily Market Statement for your Portfolio on attached.
-	<br>
-	<br>
-	Regards,<br>
-	SUM App
+	<div class="container">
+		<div class="main">
+			<img src="cid:logo" alt="SUM App Logo" class="sum-logo" />
+			<p th:text="'Hi ' + ${name} + ',' "></p>
+			<p
+				th:text="'Please find attached Post Market statement of your portfolio for trade date: ' + ${tradeDate} + '.' ">
+			</p>
+			<ul>
+				<li>Post Market statement consists of both Stock and Mutual Fund information.</li>
+				<li>This file is password protected. Password is your PAN (in capital)</li>
+			</ul>
+			<span>Regards,</span>
+			<strong>
+				<p th:text="${author}"></p>
+			</strong>
+			<hr>
+			<span>Note: </span>
+			<p>This is an auto-generated email, Please do not reply.</p>
+		</div>
+	</div>
 </body>
 
 </html>

@@ -1,5 +1,6 @@
 package building.sum.notification.service.impl;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -23,9 +25,11 @@ import building.sum.notification.model.EmailConfiguration;
 import building.sum.notification.model.EmailSentInfo;
 import building.sum.notification.model.User;
 import building.sum.notification.service.EmailService;
+import building.sum.notification.service.repository.AppDetailsRepository;
 import building.sum.notification.service.repository.EmailConfigurationRepository;
 import building.sum.notification.service.repository.EmailSentInfoRepository;
 import building.sum.notification.service.repository.UserRepository;
+import building.sum.notification.service.utility.SumUtility;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.util.ByteArrayDataSource;
 
@@ -36,7 +40,9 @@ public class EmailServiceImpl implements EmailService {
 
 	private static final String PDF_MIME_TYPE = "application/pdf";
 
-	private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
+	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
+
+	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy, EEEE");
 
 	@Value("${email.daily-market-email-code}")
 	private String emailCode;
@@ -54,15 +60,21 @@ public class EmailServiceImpl implements EmailService {
 
 	private EmailConfigurationRepository emailConfigurationRepository;
 
+	private AppDetailsRepository detailsRepository;
+
+	private ResourceLoader loader;
+
 	public EmailServiceImpl(JavaMailSender mailSender, TemplateEngine templateEngine, UserRepository userRepository,
-			EmailSentInfoRepository emailSentInfoRepository,
-			EmailConfigurationRepository emailConfigurationRepository) {
+			EmailSentInfoRepository emailSentInfoRepository, EmailConfigurationRepository emailConfigurationRepository,
+			AppDetailsRepository detailsRepository, ResourceLoader loader) {
 		super();
 		this.mailSender = mailSender;
 		this.templateEngine = templateEngine;
 		this.userRepository = userRepository;
 		this.emailSentInfoRepository = emailSentInfoRepository;
 		this.emailConfigurationRepository = emailConfigurationRepository;
+		this.detailsRepository = detailsRepository;
+		this.loader = loader;
 	}
 
 	@Override
@@ -129,8 +141,13 @@ public class EmailServiceImpl implements EmailService {
 							valid = false;
 						}
 					} else {
-						sentInfo.setEmailSentTo(emailConfiguration.getEmailTo());
-						messageHelper.setTo(emailConfiguration.getEmailTo());
+						sentInfo.setEmailSentTo(
+								emailConfiguration.getEmailTo().equalsIgnoreCase(emailSelfReferencePhrase)
+										? currentUser.getEmailId()
+										: emailConfiguration.getEmailTo());
+						messageHelper.setTo(emailConfiguration.getEmailTo().equalsIgnoreCase(emailSelfReferencePhrase)
+								? currentUser.getEmailId()
+								: emailConfiguration.getEmailTo());
 					}
 				} else {
 					log.warn("To - {} is not valid", emailConfiguration.getEmailTo());
@@ -155,7 +172,9 @@ public class EmailServiceImpl implements EmailService {
 							log.error("Cc list is empty");
 						}
 					} else {
-						messageHelper.setCc(emailConfiguration.getEmailCc());
+						messageHelper.setCc(emailConfiguration.getEmailCc().equalsIgnoreCase(emailSelfReferencePhrase)
+								? currentUser.getEmailId()
+								: emailConfiguration.getEmailCc());
 					}
 				} else {
 					log.warn("Cc - {} is not valid", emailConfiguration.getEmailCc());
@@ -171,15 +190,17 @@ public class EmailServiceImpl implements EmailService {
 								bccEmails.add(currentUser.getEmailId());
 							}
 						}
-						bccEmails = bccEmails.stream().filter(email -> !email.equalsIgnoreCase(emailSelfReferencePhrase))
-								.toList();
+						bccEmails = bccEmails.stream()
+								.filter(email -> !email.equalsIgnoreCase(emailSelfReferencePhrase)).toList();
 						if (!bccEmails.isEmpty()) {
 							messageHelper.setBcc(bccEmails.toArray(new String[0]));
 						} else {
 							log.error("Bcc list is empty");
 						}
 					} else {
-						messageHelper.setBcc(emailConfiguration.getEmailBcc());
+						messageHelper.setBcc(emailConfiguration.getEmailBcc().equalsIgnoreCase(emailSelfReferencePhrase)
+								? currentUser.getEmailId()
+								: emailConfiguration.getEmailBcc());
 					}
 				} else {
 					log.warn("Bcc - {} is not valid", emailConfiguration.getEmailBcc());
@@ -193,15 +214,22 @@ public class EmailServiceImpl implements EmailService {
 				}
 
 				// Set Body
-				// TODO Body
 				Context context = new Context();
-				context.setVariable("user-name", currentUser.getFirstName());
+				context.setVariable("name", currentUser.getFirstName());
+				context.setVariable("tradeDate", LocalDateTime.now().format(DATE_TIME_FORMATTER));
+				context.setVariable("author",
+						detailsRepository.findByAppDetailsKey(SumUtility.TABLE_APP_DETAILS_PK).getAppName());
 				String bodyHtml = templateEngine.process(emailConfiguration.getEmailBodyTemplateName(), context);
 				messageHelper.setText(bodyHtml, true);
+				String path = loader
+						.getResource("classpath:" + File.separator + "images" + File.separator + "sum-logo-192x192.png")
+						.getURI().getPath();
+				File image = new File(path);
+				messageHelper.addInline("logo", image);
 
 				// Set Attachment
 				ByteArrayDataSource dataSource = new ByteArrayDataSource(attachment, PDF_MIME_TYPE);
-				String attachmentFileName = "Statement-" + LocalDate.now().format(dateFormatter) + ".pdf";
+				String attachmentFileName = "Statement-" + LocalDate.now().format(DATE_FORMATTER) + ".pdf";
 				messageHelper.addAttachment(attachmentFileName, dataSource);
 
 				if (valid) {
