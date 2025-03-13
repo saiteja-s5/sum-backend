@@ -15,4 +15,5 @@ public interface DividendService {
 
 	void deleteDividend(String userJoinKey, Long dividendId);
 
+	void deleteDividends(String userJoinKey);
 }

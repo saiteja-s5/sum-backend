@@ -35,7 +35,7 @@ public class FundController {
 	@PostMapping()
 	@ResponseStatus(code = HttpStatus.CREATED)
 	public void postFund(@RequestBody @Valid Fund fund) {
-		log.info("Request received to post fund - {}", fund.getCreditedAmount());
+		log.info("Request received to post fund - {}", fund);
 		fundService.postFund(fund);
 	}
 
@@ -56,6 +56,13 @@ public class FundController {
 	public void deleteFund(@PathVariable String userJoinKey, @PathVariable Long fundId) {
 		log.info("Request received to delete fund with Id - {} for user - {}", fundId, userJoinKey);
 		fundService.deleteFund(userJoinKey, fundId);
+	}
+
+	@DeleteMapping("/{userJoinKey}")
+	@ResponseStatus(code = HttpStatus.OK)
+	public void deleteFunds(@PathVariable String userJoinKey) {
+		log.info("Request received to delete funds for user - {}", userJoinKey);
+		fundService.deleteFunds(userJoinKey);
 	}
 
 }

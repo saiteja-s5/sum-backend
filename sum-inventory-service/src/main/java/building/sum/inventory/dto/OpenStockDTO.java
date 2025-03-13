@@ -11,19 +11,19 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class StockDTO {
+public class OpenStockDTO {
 
-	private Long stockId;
+	private Long openStockId;
 	private String stockName;
 	private String stockSymbol;
 	private Market boughtMarket;
-	private Integer quantity;
 	private LocalDateTime investmentDate;
+	private Integer quantity;
 	private BigDecimal buyPrice;
 
 	@Override
 	public String toString() {
-		return stockId + "," + stockName + "," + stockSymbol + "," + boughtMarket + "," + quantity + ","
+		return openStockId + "," + stockName + "," + stockSymbol + "," + boughtMarket + "," + quantity + ","
 				+ investmentDate + "," + buyPrice;
 	}
 

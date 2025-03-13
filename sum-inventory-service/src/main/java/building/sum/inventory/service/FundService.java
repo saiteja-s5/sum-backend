@@ -15,4 +15,6 @@ public interface FundService {
 
 	void deleteFund(String userJoinKey, Long fundId);
 
+	void deleteFunds(String userJoinKey);
+
 }

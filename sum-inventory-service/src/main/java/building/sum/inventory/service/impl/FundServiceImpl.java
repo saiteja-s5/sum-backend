@@ -30,7 +30,7 @@ public class FundServiceImpl implements FundService {
 		try {
 			fundRepository.save(fund);
 		} catch (Exception e) {
-			log.error("Fund - {} not posted", fund.getCreditedAmount());
+			log.error("Fund - {} not posted", fund);
 			throw new ResourceNotPostedException(e.getMessage());
 		}
 	}
@@ -78,6 +78,22 @@ public class FundServiceImpl implements FundService {
 			}
 		} catch (Exception e) {
 			log.error("Fund with Id - {} not deleted", fundId);
+			throw new ResourceNotDeletedException(e.getMessage());
+		}
+	}
+
+	@Override
+	public void deleteFunds(String userJoinKey) {
+		try {
+			List<Fund> savedFunds = fundRepository.findAllByUserJoinKey(userJoinKey);
+			if (!savedFunds.isEmpty()) {
+				fundRepository.deleteByUserJoinKey(userJoinKey);
+			} else {
+				log.warn("Requested funds for user - {} not found", userJoinKey);
+				throw new ResourceNotFoundException(String.format("Funds for user - %s not found", userJoinKey));
+			}
+		} catch (Exception e) {
+			log.error("Funds for user - {} not deleted", userJoinKey);
 			throw new ResourceNotDeletedException(e.getMessage());
 		}
 	}

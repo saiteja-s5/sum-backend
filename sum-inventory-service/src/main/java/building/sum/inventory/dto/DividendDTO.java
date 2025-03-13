@@ -3,6 +3,7 @@ package building.sum.inventory.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import building.sum.inventory.model.Market;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,10 +18,12 @@ public class DividendDTO {
 	private String companySymbol;
 	private LocalDateTime creditedDate;
 	private BigDecimal creditedAmount;
+	private Market market;
 
 	@Override
 	public String toString() {
-		return dividendId + "," + companyName + "," + companySymbol + "," + creditedDate + "," + creditedAmount;
+		return dividendId + "," + companyName + "," + companySymbol + "," + market + "," + creditedDate + ","
+				+ creditedAmount;
 	}
 
 }

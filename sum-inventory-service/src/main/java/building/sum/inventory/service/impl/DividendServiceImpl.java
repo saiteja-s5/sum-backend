@@ -38,7 +38,8 @@ public class DividendServiceImpl implements DividendService {
 	@Override
 	public DividendDTO getDividend(String userJoinKey, Long dividendId) {
 		try {
-			Optional<Dividend> dividendContainer = dividendRepository.findByUserJoinKeyAndDividendId(userJoinKey, dividendId);
+			Optional<Dividend> dividendContainer = dividendRepository.findByUserJoinKeyAndDividendId(userJoinKey,
+					dividendId);
 			if (dividendContainer.isPresent()) {
 				Dividend dividend = dividendContainer.get();
 				return dividend2DTO(dividend);
@@ -69,7 +70,8 @@ public class DividendServiceImpl implements DividendService {
 	@Override
 	public void deleteDividend(String userJoinKey, Long dividendId) {
 		try {
-			Optional<Dividend> savedDividend = dividendRepository.findByUserJoinKeyAndDividendId(userJoinKey, dividendId);
+			Optional<Dividend> savedDividend = dividendRepository.findByUserJoinKeyAndDividendId(userJoinKey,
+					dividendId);
 			if (savedDividend.isPresent()) {
 				dividendRepository.deleteByUserJoinKeyAndDividendId(userJoinKey, dividendId);
 			} else {
@@ -82,9 +84,25 @@ public class DividendServiceImpl implements DividendService {
 		}
 	}
 
+	@Override
+	public void deleteDividends(String userJoinKey) {
+		try {
+			List<Dividend> savedDividends = dividendRepository.findAllByUserJoinKey(userJoinKey);
+			if (!savedDividends.isEmpty()) {
+				dividendRepository.deleteByUserJoinKey(userJoinKey);
+			} else {
+				log.warn("Requested dividends for user - {} not found", userJoinKey);
+				throw new ResourceNotFoundException(String.format("Dividends for user - %s not found", userJoinKey));
+			}
+		} catch (Exception e) {
+			log.error("Dividends for user - {} not deleted", userJoinKey);
+			throw new ResourceNotDeletedException(e.getMessage());
+		}
+	}
+
 	private DividendDTO dividend2DTO(Dividend dividend) {
 		return DividendDTO.builder().dividendId(dividend.getDividendId()).companyName(dividend.getCompanyName())
 				.companySymbol(dividend.getCompanySymbol()).creditedDate(dividend.getCreditedDate())
-				.creditedAmount(dividend.getCreditedAmount()).build();
+				.creditedAmount(dividend.getCreditedAmount()).market(dividend.getMarket()).build();
 	}
 }

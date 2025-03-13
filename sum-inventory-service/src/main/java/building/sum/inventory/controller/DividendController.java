@@ -35,7 +35,7 @@ public class DividendController {
 	@PostMapping()
 	@ResponseStatus(code = HttpStatus.CREATED)
 	public void postDividend(@RequestBody @Valid Dividend dividend) {
-		log.info("Request received to post dividend - {}", dividend.getCompanyName());
+		log.info("Request received to post dividend - {}", dividend);
 		dividendService.postDividend(dividend);
 	}
 
@@ -56,6 +56,13 @@ public class DividendController {
 	public void deleteDividend(@PathVariable String userJoinKey, @PathVariable Long dividendId) {
 		log.info("Request received to delete dividend with Id - {} for user - {}", dividendId, userJoinKey);
 		dividendService.deleteDividend(userJoinKey, dividendId);
+	}
+
+	@DeleteMapping("/{userJoinKey}")
+	@ResponseStatus(code = HttpStatus.OK)
+	public void deleteDividends(@PathVariable String userJoinKey) {
+		log.info("Request received to delete dividends for user - {}", userJoinKey);
+		dividendService.deleteDividends(userJoinKey);
 	}
 
 }
