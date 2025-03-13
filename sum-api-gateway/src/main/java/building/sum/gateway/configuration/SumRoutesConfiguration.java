@@ -12,14 +12,11 @@ public class SumRoutesConfiguration {
 	RouteLocator sumMicroserviceRoutes(RouteLocatorBuilder builder) {
 		return builder.routes()
 				.route("sum-service-registry",
-						r -> r.path("/eureka/web").filters(f -> f.setPath("/")).uri("http://localhost:9090"))
-				.route("sum-service-registry-static-resources", r -> r.path("/eureka/**").uri("http://localhost:9090"))
+						r -> r.path("/eureka/web").filters(f -> f.setPath("/")).uri("lb://sum-service-registry"))
 				.route("sum-inventory-service",
-						r -> r.path("/stocks/**", "/funds/**", "/dividends/**").uri("lb://sum-inventory-service"))
-				.route("sum-market-service",
-						r -> r.path("/market/**", "/daily-market/**").uri("lb://sum-market-service"))
-				.route("sum-notification-service", r -> r.path("/email-notify/**").uri("lb://sum-notification-service"))
-				.route("sum-report-service", r -> r.path("/pdf-reports/**").uri("lb://sum-report-service")).build();
+						r -> r.path("/open-stocks/**", "/funds/**", "/dividends/**", "/closed-stocks/**")
+								.uri("lb://sum-inventory-service"))
+				.route("sum-market-service", r -> r.path("/market/**").uri("lb://sum-market-service")).build();
 	}
 
 }
