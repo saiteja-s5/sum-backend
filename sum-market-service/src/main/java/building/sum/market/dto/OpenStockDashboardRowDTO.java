@@ -13,7 +13,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class StockDashboardRowDTO {
+public class OpenStockDashboardRowDTO {
 
 	private String stockName;
 	private String stockSymbol;
@@ -26,7 +26,7 @@ public class StockDashboardRowDTO {
 	private BigDecimal onePercentTarget;
 	private BigDecimal twoPercentTarget;
 
-	public StockDashboardRowDTO(String stockName, String stockSymbol, Market market, Integer quantity,
+	public OpenStockDashboardRowDTO(String stockName, String stockSymbol, Market market, Integer quantity,
 			LocalDateTime buyDate, BigDecimal buyPrice) {
 		super();
 		this.stockName = stockName;
@@ -41,7 +41,7 @@ public class StockDashboardRowDTO {
 		this.twoPercentTarget = twoPercentTarget();
 	}
 
-	public StockDashboardRowDTO(OpenStock openStock) {
+	public OpenStockDashboardRowDTO(OpenStock openStock) {
 		this(openStock.getStockName(), openStock.getStockSymbol(), openStock.getBoughtMarket(), openStock.getQuantity(),
 				openStock.getInvestmentDate(), openStock.getBuyPrice());
 	}

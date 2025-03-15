@@ -11,23 +11,24 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class StockDashboardDTO {
+public class OpenStockDashboardDTO {
 
-	private List<StockDashboardRowDTO> stocks;
+	private List<OpenStockDashboardRowDTO> openStocks;
 	private BigDecimal totalStockInvestmentValue;
 	private BigDecimal totalStockCurrentValue;
 	private BigDecimal totalStockCurrentReturn;
 	private BigDecimal totalStockCurrentReturnPercent;
 	private BigDecimal totalStockOnePercentTargetValue;
 	private BigDecimal totalStockTwoPercentTargetValue;
-	private LocalDateTime stockLastTransactionOn;
-	private LocalDateTime stockTableUpdatedOn;
+	private LocalDateTime openStockLastTransactionOn;
+	private LocalDateTime openStockTableUpdatedOn;
 
 	@Override
 	public String toString() {
-		return stocks + "," + totalStockInvestmentValue + "," + totalStockCurrentValue + "," + totalStockCurrentReturn
-				+ "," + totalStockCurrentReturnPercent + "," + totalStockOnePercentTargetValue + ","
-				+ totalStockTwoPercentTargetValue + "," + stockLastTransactionOn + "," + stockTableUpdatedOn;
+		return openStocks + "," + totalStockInvestmentValue + "," + totalStockCurrentValue + ","
+				+ totalStockCurrentReturn + "," + totalStockCurrentReturnPercent + "," + totalStockOnePercentTargetValue
+				+ "," + totalStockTwoPercentTargetValue + "," + openStockLastTransactionOn + ","
+				+ openStockTableUpdatedOn;
 	}
 
 }
