@@ -16,7 +16,7 @@
 		</encoder>
 		<rollingPolicy
 			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>Sum App Logs/Market Service Logs/Market-%d{dd-MMM-yyyy}.log</fileNamePattern>
+			<fileNamePattern>Sum App Logs/sum-market-service/%d{dd-MMM-yyyy}.log</fileNamePattern>
 			<maxHistory>30</maxHistory>
 		</rollingPolicy>
 	</appender>

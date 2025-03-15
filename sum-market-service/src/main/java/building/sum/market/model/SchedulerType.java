@@ -2,7 +2,7 @@ package building.sum.market.model;
 
 public enum SchedulerType {
 
-	DAILY_MARKET("Daily Market");
+	DAILY_AFTER_MARKET("Daily After Market Update");
 
 	private final String fileName;
 

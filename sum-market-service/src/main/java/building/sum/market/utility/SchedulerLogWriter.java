@@ -18,7 +18,7 @@ import building.sum.market.model.SchedulerType;
 @Component
 public class SchedulerLogWriter {
 
-	@Value("${daily-market.log-path}")
+	@Value("${scheduler.log-path}")
 	private String logPath;
 
 	private static final Logger log = LogManager.getLogger();

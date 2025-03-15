@@ -1,81 +1,57 @@
 package building.sum.market.scheduler;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClient.Builder;
 
 import building.sum.market.exception.SchedulerStoppedException;
 import building.sum.market.model.SchedulerType;
-import building.sum.market.repository.NotificationSubscriptionsRepository;
+import building.sum.market.service.MarketService;
 import building.sum.market.utility.SchedulerLogWriter;
+import building.sum.market.utility.SumUtility;
 
 @Component
 public class AfterMarketScheduler {
 
-	@Value("${after-market.scheduler-enabled}")
-	private boolean isDailySchedulerEnabled;
+	@Value("${daily-after-market-table-update.scheduler-enabled}")
+	private boolean isDailyAfterMarketUpdaterSchedulerEnabled;
 
 	private static final Logger log = LogManager.getLogger();
 
+	private static final DateTimeFormatter DMY_FORMATTER = SumUtility.DMY_FORMATTER;
+
 	private final SchedulerLogWriter logWriter;
 
-	private final WebClient.Builder builder;
+	private final MarketService marketService;
 
-	private final NotificationSubscriptionsRepository subscriptions;
-
-	public AfterMarketScheduler(SchedulerLogWriter logWriter, Builder builder,
-			NotificationSubscriptionsRepository subscriptions) {
+	public AfterMarketScheduler(SchedulerLogWriter logWriter, MarketService marketService) {
 		this.logWriter = logWriter;
-		this.builder = builder;
-		this.subscriptions = subscriptions;
+		this.marketService = marketService;
 	}
 
-	@Scheduled(cron = "${after-market.scheduler-time}")
-	public void getDailyDataForCurrentHoldings() {
-		SchedulerType type = SchedulerType.DAILY_MARKET;
+	@Scheduled(cron = "${daily-after-market-table-update.scheduler-time}")
+	public void getDailyAfterMarketUpdateData() {
+		SchedulerType type = SchedulerType.DAILY_AFTER_MARKET;
 		try {
-			if (isDailySchedulerEnabled) {
-				String logContent = "After Market Scheduler is Enabled";
+			if (isDailyAfterMarketUpdaterSchedulerEnabled) {
+				String logContent = "Daily After Market Updater Scheduler is Enabled";
 				logWriter.writeLog(logContent, type);
 				log.info(logContent);
-				List<String> subscribedUsers = subscriptions.findBySchedulerType(type.toString()).stream()
-						.filter(sub -> sub.getIsActive() == 1).map(sub -> sub.getUserJoinKey()).toList();
-				for (String user : subscribedUsers) {
-					logContent = String.format("Fetching Daily data of Current Holdings of user - %s", user);
-					logWriter.writeLog(logContent, type);
-					log.info(logContent);
-					byte[] attachment = builder.build().get()
-							.uri("http://localhost:9595/pdf-reports/after-market/" + user).retrieve()
-							.bodyToMono(byte[].class).block();
-					String logIntermediate = String.format("Pdf file received from report service for user - %s", user);
-					logWriter.writeLog(logIntermediate, type);
-					log.info(logIntermediate);
-					if (attachment != null) {
-						builder.build().post().uri("http://localhost:9595/email-notify/with-pdf-attachment/" + user)
-								.body(BodyInserters.fromValue(attachment)).retrieve().bodyToMono(Void.class).block();
-						logContent = String.format("Fetching of Daily data completed for user - %s", user);
-						logWriter.writeLog(logContent, type);
-						log.info(logContent);
-					} else {
-						String errorLog = String.format("Null received from report service for user - %s", user);
-						logWriter.writeLog(errorLog, type);
-						log.warn(errorLog);
-					}
-				}
+				String today = LocalDate.now().format(DMY_FORMATTER);
+				String tomorrow = LocalDate.now().plusDays(1).format(DMY_FORMATTER);
+				marketService.saveHistoricalStockQuote(today, tomorrow);
 			} else {
-				String logDisableContent = "Daily Scheduler is disabled";
+				String logDisableContent = "Daily After Market Updater Scheduler is Disabled";
 				logWriter.writeLog(logDisableContent, type);
 				log.warn(logDisableContent);
 			}
 		} catch (Exception e) {
-			log.warn("Scheduler stopped!");
+			log.warn("Scheduler stopped! Type - {}", type);
 			throw new SchedulerStoppedException(e.getMessage());
 		}
 	}
