@@ -23,7 +23,7 @@ public class DividendDashboardRowDTO {
 	}
 
 	public DividendDashboardRowDTO(Dividend dividend) {
-		this(dividend.getCompanyName(), dividend.getCreatedDateTime(), dividend.getCreditedAmount());
+		this(dividend.getCompanyName(), dividend.getCreditedDate(), dividend.getCreditedAmount());
 	}
 
 	@Override
