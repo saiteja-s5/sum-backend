@@ -17,17 +17,17 @@ import lombok.AllArgsConstructor;
 @CrossOrigin
 @RestController
 @AllArgsConstructor
-@RequestMapping("/daily-market")
-public class DailyMarketController {
+@RequestMapping("/dashboard")
+public class DashboardController {
 
 	private static final Logger log = LogManager.getLogger();
 
 	private final DashboardService dashboardService;
 
-	@GetMapping("/{userJoinKey}/dashboard")
-	public ResponseEntity<StockDashboardDTO> getCurrentHoldings(@PathVariable String userJoinKey) {
-		log.info("Request received to get current holdings dashboard for user - {}", userJoinKey);
-		return new ResponseEntity<>(dashboardService.getCurrentHoldings(userJoinKey), HttpStatus.OK);
+	@GetMapping("/{userJoinKey}/stock")
+	public ResponseEntity<StockDashboardDTO> getOpenStockHoldings(@PathVariable String userJoinKey) {
+		log.info("Request received to get open stock holdings dashboard for user - {}", userJoinKey);
+		return new ResponseEntity<>(dashboardService.getOpenStockHoldings(userJoinKey), HttpStatus.OK);
 	}
 
 }

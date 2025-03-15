@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 
 import building.sum.market.model.Market;
-import building.sum.market.model.Stock;
+import building.sum.market.model.OpenStock;
 import building.sum.market.utility.SumUtility;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,9 +41,9 @@ public class StockDashboardRowDTO {
 		this.twoPercentTarget = twoPercentTarget();
 	}
 
-	public StockDashboardRowDTO(Stock stock) {
-		this(stock.getStockName(), stock.getStockSymbol(), stock.getBoughtMarket(), stock.getQuantity(),
-				stock.getInvestmentDate(), stock.getBuyPrice());
+	public StockDashboardRowDTO(OpenStock openStock) {
+		this(openStock.getStockName(), openStock.getStockSymbol(), openStock.getBoughtMarket(), openStock.getQuantity(),
+				openStock.getInvestmentDate(), openStock.getBuyPrice());
 	}
 
 	private BigDecimal buyValue() {

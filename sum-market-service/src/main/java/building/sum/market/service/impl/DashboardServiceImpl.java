@@ -1,6 +1,7 @@
 package building.sum.market.service.impl;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -12,11 +13,9 @@ import org.springframework.stereotype.Service;
 import building.sum.market.dto.StockDashboardDTO;
 import building.sum.market.dto.StockDashboardRowDTO;
 import building.sum.market.exception.ResourceNotFoundException;
-import building.sum.market.model.TableLastUpdateDetails;
-import building.sum.market.repository.StockRepository;
-import building.sum.market.repository.TableLastUpdateDetailsRepository;
-import building.sum.market.service.DailyMarketService;
+import building.sum.market.repository.OpenStockRepository;
 import building.sum.market.service.DashboardService;
+import building.sum.market.service.MarketService;
 import building.sum.market.utility.SumUtility;
 
 @Service
@@ -24,23 +23,20 @@ public class DashboardServiceImpl implements DashboardService {
 
 	private static final Logger log = LogManager.getLogger();
 
-	private StockRepository stockRepository;
+	private OpenStockRepository openStockRepository;
 
-	private DailyMarketService marketService;
+	private MarketService marketService;
 
-	private TableLastUpdateDetailsRepository lastUpdateDetailsRepository;
-
-	public DashboardServiceImpl(StockRepository stockRepository, DailyMarketService marketService,
-			TableLastUpdateDetailsRepository lastUpdateDetailsRepository) {
-		this.stockRepository = stockRepository;
+	public DashboardServiceImpl(OpenStockRepository openStockRepository, MarketService marketService) {
+		this.openStockRepository = openStockRepository;
 		this.marketService = marketService;
-		this.lastUpdateDetailsRepository = lastUpdateDetailsRepository;
 	}
 
 	@Override
-	public StockDashboardDTO getCurrentHoldings(String userJoinkey) {
+	public StockDashboardDTO getOpenStockHoldings(String userJoinkey) {
+		log.debug(">>>>> getOpenStockHoldings args - {}", userJoinkey);
 		try {
-			List<StockDashboardRowDTO> stocks = stockRepository.findAllByUserJoinKey(userJoinkey).stream()
+			List<StockDashboardRowDTO> stocks = openStockRepository.findAllByUserJoinKey(userJoinkey).stream()
 					.map(StockDashboardRowDTO::new).toList();
 			if (!stocks.isEmpty()) {
 				double totalInvestmentValue = stocks.stream().map(stock -> stock.getBuyValue().doubleValue())
@@ -53,8 +49,6 @@ public class DashboardServiceImpl implements DashboardService {
 				BigDecimal currentReturnPercentage = SumUtility.getPercentageReturn(totalInvestmentValue, currentValue);
 				Optional<StockDashboardRowDTO> latestBuyDateContainer = stocks.stream()
 						.max(Comparator.comparing(StockDashboardRowDTO::getBuyDate));
-				Optional<TableLastUpdateDetails> updateDetailsContainer = lastUpdateDetailsRepository
-						.findById(SumUtility.TABLE_UPDATES_PK);
 				return StockDashboardDTO.builder().stocks(stocks)
 						.totalStockInvestmentValue(SumUtility.roundTo(totalInvestmentValue, 2))
 						.totalStockCurrentValue(SumUtility.roundTo(currentValue, 2))
@@ -68,17 +62,16 @@ public class DashboardServiceImpl implements DashboardService {
 										.reduce(0.0, (v1, v2) -> v1 + v2), 2))
 						.stockLastTransactionOn(
 								latestBuyDateContainer.isPresent() ? latestBuyDateContainer.get().getBuyDate() : null)
-						.stockTableUpdatedOn(updateDetailsContainer.isPresent()
-								? updateDetailsContainer.get().getStockHoldingsOpenLastUpdatedOn()
-								: null)
-						.build();
+						.stockTableUpdatedOn(LocalDateTime.now()).build();
 			} else {
-				log.warn("No stocks found");
+				log.warn("No stocks found for user - {}", userJoinkey);
 				return StockDashboardDTO.builder().build();
 			}
 		} catch (Exception e) {
-			log.error("Unable to fetch stocks");
+			log.error("Unable to fetch stocks for user - {}", userJoinkey);
 			throw new ResourceNotFoundException(e.getMessage());
+		} finally {
+			log.debug("<<<<< getOpenStockHoldings args - {}", userJoinkey);
 		}
 	}
 

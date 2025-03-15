@@ -4,6 +4,6 @@ import building.sum.market.dto.StockDashboardDTO;
 
 public interface DashboardService {
 
-	StockDashboardDTO getCurrentHoldings(String userJoinkey);
+	StockDashboardDTO getOpenStockHoldings(String userJoinkey);
 
 }
