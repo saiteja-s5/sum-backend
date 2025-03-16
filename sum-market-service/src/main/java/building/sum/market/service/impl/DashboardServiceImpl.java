@@ -49,7 +49,8 @@ public class DashboardServiceImpl implements DashboardService {
 		log.debug(">>>>> getOpenStockHoldings args - {}", userJoinkey);
 		try {
 			List<OpenStockDashboardRowDTO> openStocks = openStockRepository.findAllByUserJoinKey(userJoinkey).stream()
-					.map(OpenStockDashboardRowDTO::new).toList();
+					.map(OpenStockDashboardRowDTO::new).sorted((s1, s2) -> s1.getBuyDate().compareTo(s2.getBuyDate()))
+					.toList();
 			if (!openStocks.isEmpty()) {
 				double totalInvestmentValue = openStocks.stream().map(stock -> stock.getBuyValue().doubleValue())
 						.reduce(0.0, (v1, v2) -> v1 + v2);
@@ -92,7 +93,8 @@ public class DashboardServiceImpl implements DashboardService {
 		log.debug(">>>>> getFunds args - {}", userJoinkey);
 		try {
 			List<FundDashboardRowDTO> funds = fundRepository.findAllByUserJoinKey(userJoinkey).stream()
-					.map(FundDashboardRowDTO::new).toList();
+					.map(FundDashboardRowDTO::new)
+					.sorted((f1, f2) -> f1.getTransactionDate().compareTo(f2.getTransactionDate())).toList();
 			if (!funds.isEmpty()) {
 				double totalFundsValue = funds.stream().map(fund -> fund.getNetFundInDematAmount().doubleValue())
 						.reduce(0.0, (v1, v2) -> v1 + v2);
@@ -126,7 +128,8 @@ public class DashboardServiceImpl implements DashboardService {
 		log.debug(">>>>> getDividends args - {}", userJoinkey);
 		try {
 			List<DividendDashboardRowDTO> dividends = dividendRepository.findAllByUserJoinKey(userJoinkey).stream()
-					.map(DividendDashboardRowDTO::new).toList();
+					.map(DividendDashboardRowDTO::new)
+					.sorted((d1, d2) -> d1.getCreditedDate().compareTo(d2.getCreditedDate())).toList();
 			if (!dividends.isEmpty()) {
 				double totalDividendsValue = dividends.stream()
 						.map(dividend -> dividend.getCreditedAmount().doubleValue()).reduce(0.0, (v1, v2) -> v1 + v2);
@@ -155,7 +158,8 @@ public class DashboardServiceImpl implements DashboardService {
 		log.debug(">>>>> getClosedStockHoldings args - {}", userJoinkey);
 		try {
 			List<ClosedStockDashboardRowDTO> closedStocks = closedStockRepository.findAllByUserJoinKey(userJoinkey)
-					.stream().map(ClosedStockDashboardRowDTO::new).toList();
+					.stream().map(ClosedStockDashboardRowDTO::new)
+					.sorted((c1, c2) -> c1.getSellDate().compareTo(c2.getSellDate())).toList();
 			if (!closedStocks.isEmpty()) {
 				double totalBoughtAmountValue = closedStocks.stream().map(stock -> stock.getBuyValue().doubleValue())
 						.reduce(0.0, (v1, v2) -> v1 + v2);

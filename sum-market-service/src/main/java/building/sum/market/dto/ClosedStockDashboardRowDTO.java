@@ -1,6 +1,7 @@
 package building.sum.market.dto;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.Period;
 
@@ -77,7 +78,11 @@ public class ClosedStockDashboardRowDTO {
 
 	private BigDecimal profitLossPercentPerMonth() {
 		int totalMonths = holdDuration().getYears() * 12 + holdDuration().getMonths();
-		return SumUtility.roundTo(profitLossPercent().divide(BigDecimal.valueOf(totalMonths)).doubleValue(), 2);
+		if (totalMonths == 0) {
+			totalMonths = 1;
+		}
+		return SumUtility.roundTo(
+				profitLossPercent().divide(BigDecimal.valueOf(totalMonths), RoundingMode.FLOOR).doubleValue(), 2);
 	}
 
 	@Override
