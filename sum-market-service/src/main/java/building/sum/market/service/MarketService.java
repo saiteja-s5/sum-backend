@@ -2,6 +2,7 @@ package building.sum.market.service;
 
 import building.sum.market.dto.YahooFinanceHistoricalResponseDTO;
 import building.sum.market.dto.YahooQuoteDTO;
+import building.sum.market.model.InitiationMode;
 import building.sum.market.model.Market;
 
 public interface MarketService {
@@ -10,8 +11,8 @@ public interface MarketService {
 
 	YahooFinanceHistoricalResponseDTO getHistoricalStockQuote(Market market, String symbol, String from, String to);
 
-	void saveHistoricalStockQuote(String to);
+	void saveHistoricalStockQuote(String to, InitiationMode mode);
 
-	void updateStockUpdatedDates();
+	void updateStockUpdatedDates(InitiationMode mode);
 
 }

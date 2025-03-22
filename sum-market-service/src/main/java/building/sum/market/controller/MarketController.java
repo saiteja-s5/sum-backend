@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import building.sum.market.dto.YahooFinanceHistoricalResponseDTO;
 import building.sum.market.dto.YahooQuoteDTO;
+import building.sum.market.model.InitiationMode;
 import building.sum.market.model.Market;
 import building.sum.market.service.MarketService;
 import building.sum.market.utility.SumUtility;
@@ -54,17 +55,19 @@ public class MarketController {
 
 	@GetMapping("/historical-quote-save")
 	@ResponseStatus(code = HttpStatus.OK)
-	public void saveHistoricalStocksQuotes(@RequestParam(required = false) String to) {
+	public void saveHistoricalStocksQuotes(@RequestParam(required = false) String to,
+			@RequestParam(required = false) InitiationMode mode) {
 		String newTo = setDefaultToDateIfNotPresent(to);
-		log.info("Request received to save historical stock data between last saved date and - {}", newTo);
-		marketService.saveHistoricalStockQuote(newTo);
+		log.info("Request received to save historical stock data between last saved date and - {} in - {}", newTo,
+				mode);
+		marketService.saveHistoricalStockQuote(newTo, mode);
 	}
 
 	@GetMapping("/historical-quote-save-updated-date")
 	@ResponseStatus(code = HttpStatus.OK)
-	public void saveHistoricalStocksUpdatedDate() {
-		log.info("Request received to save/update historical stock updated dates");
-		marketService.updateStockUpdatedDates();
+	public void saveHistoricalStocksUpdatedDate(@RequestParam(required = false) InitiationMode mode) {
+		log.info("Request received to save/update historical stock updated dates in - {}", mode);
+		marketService.updateStockUpdatedDates(mode);
 	}
 
 	private Market setDefaultMarketIfNotPresent(String market) {

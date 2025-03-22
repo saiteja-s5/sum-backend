@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import building.sum.market.exception.SchedulerStoppedException;
+import building.sum.market.model.InitiationMode;
 import building.sum.market.model.SchedulerType;
 import building.sum.market.service.MarketService;
 import building.sum.market.utility.SchedulerLogWriter;
@@ -43,7 +44,7 @@ public class AfterMarketScheduler {
 				logWriter.writeLog(logContent, type);
 				log.info(logContent);
 				String tomorrow = LocalDate.now().plusDays(1).format(DMY_FORMATTER);
-				marketService.saveHistoricalStockQuote(tomorrow);
+				marketService.saveHistoricalStockQuote(tomorrow, InitiationMode.SCHEDULER);
 			} else {
 				String logDisableContent = "Daily After Market Updater Scheduler is Disabled";
 				logWriter.writeLog(logDisableContent, type);

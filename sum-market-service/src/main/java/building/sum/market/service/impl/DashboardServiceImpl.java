@@ -1,7 +1,6 @@
 package building.sum.market.service.impl;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -19,10 +18,12 @@ import building.sum.market.dto.FundDashboardRowDTO;
 import building.sum.market.dto.OpenStockDashboardDTO;
 import building.sum.market.dto.OpenStockDashboardRowDTO;
 import building.sum.market.exception.ResourceNotFoundException;
+import building.sum.market.model.TableLastUpdateDetails;
 import building.sum.market.repository.ClosedStockRepository;
 import building.sum.market.repository.DividendRepository;
 import building.sum.market.repository.FundRepository;
 import building.sum.market.repository.OpenStockRepository;
+import building.sum.market.repository.TableLastUpdateDetailsRepository;
 import building.sum.market.service.DashboardService;
 import building.sum.market.service.MarketService;
 import building.sum.market.utility.SumUtility;
@@ -34,6 +35,8 @@ public class DashboardServiceImpl implements DashboardService {
 
 	private static final Logger log = LogManager.getLogger();
 
+	private static final String LAST_UPDATED_TABLE_PK = SumUtility.LAST_UPDATED_TABLE_PK;
+
 	private final OpenStockRepository openStockRepository;
 
 	private final FundRepository fundRepository;
@@ -42,9 +45,10 @@ public class DashboardServiceImpl implements DashboardService {
 
 	private final ClosedStockRepository closedStockRepository;
 
+	private final TableLastUpdateDetailsRepository tableLastUpdateDetailsRepository;
+
 	private final MarketService marketService;
 
-	// TODO Open Stock Table Updated On
 	@Override
 	public OpenStockDashboardDTO getOpenStockHoldings(String userJoinkey) {
 		log.debug(">>>>> getOpenStockHoldings args - {}", userJoinkey);
@@ -63,6 +67,8 @@ public class DashboardServiceImpl implements DashboardService {
 				BigDecimal currentReturnPercentage = SumUtility.getPercentageReturn(totalInvestmentValue, currentValue);
 				Optional<OpenStockDashboardRowDTO> latestBuyDateContainer = openStocks.stream()
 						.max(Comparator.comparing(OpenStockDashboardRowDTO::getBuyDate));
+				Optional<TableLastUpdateDetails> updatedDateContainer = tableLastUpdateDetailsRepository
+						.findById(LAST_UPDATED_TABLE_PK);
 				return OpenStockDashboardDTO.builder().openStocks(openStocks)
 						.totalStockInvestmentValue(SumUtility.roundTo(totalInvestmentValue, 2))
 						.totalStockCurrentValue(SumUtility.roundTo(currentValue, 2))
@@ -70,7 +76,10 @@ public class DashboardServiceImpl implements DashboardService {
 						.totalStockCurrentReturnPercent(SumUtility.roundTo(currentReturnPercentage.doubleValue(), 2))
 						.openStockLastTransactionOn(
 								latestBuyDateContainer.isPresent() ? latestBuyDateContainer.get().getBuyDate() : null)
-						.openStockTableUpdatedOn(LocalDateTime.now()).build();
+						.openStockTableUpdatedOn(updatedDateContainer.isPresent()
+								? updatedDateContainer.get().getOpenStockHoldingsUpdatedDateTime()
+								: null)
+						.build();
 			} else {
 				log.warn("No open stocks found for user - {}", userJoinkey);
 				return OpenStockDashboardDTO.builder().build();
@@ -83,7 +92,6 @@ public class DashboardServiceImpl implements DashboardService {
 		}
 	}
 
-	// TODO Fund Table Updated On
 	@Override
 	public FundDashboardDTO getFunds(String userJoinkey) {
 		log.debug(">>>>> getFunds args - {}", userJoinkey);
@@ -100,13 +108,18 @@ public class DashboardServiceImpl implements DashboardService {
 						.reduce(0.0, (v1, v2) -> v1 + v2);
 				Optional<FundDashboardRowDTO> latestBuyDateContainer = funds.stream()
 						.max(Comparator.comparing(FundDashboardRowDTO::getTransactionDate));
+				Optional<TableLastUpdateDetails> updatedDateContainer = tableLastUpdateDetailsRepository
+						.findById(LAST_UPDATED_TABLE_PK);
 				return FundDashboardDTO.builder().funds(funds).totalFundsValue(SumUtility.roundTo(totalFundsValue, 2))
 						.totalCreditedAmountValue(SumUtility.roundTo(totalCreditedAmountValue, 2))
 						.totalDebitedAmountValue(SumUtility.roundTo(totalDebitedAmountValue, 2))
 						.fundLastTransactionOn(
 								latestBuyDateContainer.isPresent() ? latestBuyDateContainer.get().getTransactionDate()
 										: null)
-						.fundTableUpdatedOn(LocalDateTime.now()).build();
+						.fundTableUpdatedOn(
+								updatedDateContainer.isPresent() ? updatedDateContainer.get().getFundUpdatedDateTime()
+										: null)
+						.build();
 			} else {
 				log.warn("No funds found for user - {}", userJoinkey);
 				return FundDashboardDTO.builder().build();
@@ -119,7 +132,6 @@ public class DashboardServiceImpl implements DashboardService {
 		}
 	}
 
-	// TODO Dividend Table Updated On
 	@Override
 	public DividendDashboardDTO getDividends(String userJoinkey) {
 		log.debug(">>>>> getDividends args - {}", userJoinkey);
@@ -132,12 +144,17 @@ public class DashboardServiceImpl implements DashboardService {
 						.map(dividend -> dividend.getCreditedAmount().doubleValue()).reduce(0.0, (v1, v2) -> v1 + v2);
 				Optional<DividendDashboardRowDTO> latestBuyDateContainer = dividends.stream()
 						.max(Comparator.comparing(DividendDashboardRowDTO::getCreditedDate));
+				Optional<TableLastUpdateDetails> updatedDateContainer = tableLastUpdateDetailsRepository
+						.findById(LAST_UPDATED_TABLE_PK);
 				return DividendDashboardDTO.builder().dividends(dividends)
 						.totalDividendsValue(SumUtility.roundTo(totalDividendsValue, 2))
 						.dividendLastTransactionOn(
 								latestBuyDateContainer.isPresent() ? latestBuyDateContainer.get().getCreditedDate()
 										: null)
-						.dividendTableUpdatedOn(LocalDateTime.now()).build();
+						.dividendTableUpdatedOn(updatedDateContainer.isPresent()
+								? updatedDateContainer.get().getDividendUpdatedDateTime()
+								: null)
+						.build();
 			} else {
 				log.warn("No dividends found for user - {}", userJoinkey);
 				return DividendDashboardDTO.builder().build();
@@ -150,7 +167,7 @@ public class DashboardServiceImpl implements DashboardService {
 		}
 	}
 
-	// TODO Closed Stock Table Updated On and percentReturnPerTransaction
+	// TODO percentReturnPerTransaction
 	@Override
 	public ClosedStockDashboardDTO getClosedStockHoldings(String userJoinkey) {
 		log.debug(">>>>> getClosedStockHoldings args - {}", userJoinkey);
@@ -167,6 +184,8 @@ public class DashboardServiceImpl implements DashboardService {
 				double percentReturnPerTransaction = 0;
 				Optional<ClosedStockDashboardRowDTO> latestBuyDateContainer = closedStocks.stream()
 						.max(Comparator.comparing(ClosedStockDashboardRowDTO::getSellDate));
+				Optional<TableLastUpdateDetails> updatedDateContainer = tableLastUpdateDetailsRepository
+						.findById(LAST_UPDATED_TABLE_PK);
 				return ClosedStockDashboardDTO.builder().closedStocks(closedStocks)
 						.totalBoughtAmountValue(SumUtility.roundTo(totalBoughtAmountValue, 2))
 						.totalSoldAmountValue(SumUtility.roundTo(totalSellAmountValue, 2))
@@ -176,7 +195,10 @@ public class DashboardServiceImpl implements DashboardService {
 						.percentReturnPerTransaction(SumUtility.roundTo(percentReturnPerTransaction, 2))
 						.closedStockLastTransactionOn(
 								latestBuyDateContainer.isPresent() ? latestBuyDateContainer.get().getSellDate() : null)
-						.closedStockTableUpdatedOn(LocalDateTime.now()).build();
+						.closedStockTableUpdatedOn(updatedDateContainer.isPresent()
+								? updatedDateContainer.get().getClosedStockHoldingsUpdatedDateTime()
+								: null)
+						.build();
 			} else {
 				log.warn("No closed stocks found for user - {}", userJoinkey);
 				return ClosedStockDashboardDTO.builder().build();

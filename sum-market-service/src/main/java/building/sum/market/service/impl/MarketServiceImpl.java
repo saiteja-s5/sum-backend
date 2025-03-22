@@ -30,6 +30,7 @@ import building.sum.market.model.Company;
 import building.sum.market.model.HistoricalDataBSE2021To2025;
 import building.sum.market.model.HistoricalDataNSE2021To2025;
 import building.sum.market.model.HistoricalDataUpdatedDate;
+import building.sum.market.model.InitiationMode;
 import building.sum.market.model.Market;
 import building.sum.market.model.YahooFinanceApiRequestProperties;
 import building.sum.market.repository.CompanyRepository;
@@ -122,9 +123,8 @@ public class MarketServiceImpl implements MarketService {
 		}
 	}
 
-	// TODO Created/Updated Date
 	@Override
-	public void saveHistoricalStockQuote(String to) {
+	public void saveHistoricalStockQuote(String to, InitiationMode mode) {
 		log.debug(">>>>> saveHistoricalStockQuote args - {}", to);
 		List<String> skippedStocks = new ArrayList<>();
 		for (Company company : companyRepository.findByIsActive(IS_ACTIVE).stream()
@@ -164,7 +164,7 @@ public class MarketServiceImpl implements MarketService {
 							historyUpdatedRecord = lastDateContainer.get();
 							historyUpdatedRecord.setStockUpdatedDateTime(
 									epochSecondToLocalDate(latestQuoteFromYfinance.get().longValue()));
-							historyUpdatedRecord.setUpdatedBy("");
+							historyUpdatedRecord.setUpdatedBy(mode.getMode());
 							historyUpdatedRecord.setUpdatedDateTime(LocalDateTime.now());
 						} else {
 							historyUpdatedRecord = HistoricalDataUpdatedDate.builder()
@@ -172,8 +172,8 @@ public class MarketServiceImpl implements MarketService {
 									.market(company.getMarket())
 									.stockUpdatedDateTime(
 											epochSecondToLocalDate(latestQuoteFromYfinance.get().longValue()))
-									.createdBy("").createdDateTime(LocalDateTime.now()).updatedBy("")
-									.updatedDateTime(LocalDateTime.now()).build();
+									.createdBy(mode.getMode()).createdDateTime(LocalDateTime.now())
+									.updatedBy(mode.getMode()).updatedDateTime(LocalDateTime.now()).build();
 						}
 						historicalDataUpdatedDateRepository.save(historyUpdatedRecord);
 					}
@@ -190,8 +190,7 @@ public class MarketServiceImpl implements MarketService {
 		log.debug("<<<<< saveHistoricalStockQuote args - {}", to);
 	}
 
-	// TODO Created/Updated Date
-	public void updateStockUpdatedDates() {
+	public void updateStockUpdatedDates(InitiationMode mode) {
 		log.debug(">>>>> updateStockUpdatedDates");
 		for (Company company : companyRepository.findByIsActive(IS_ACTIVE).stream()
 				.filter(company -> company.getSymbol() != null && company.getMarket() != null).toList()) {
@@ -208,19 +207,21 @@ public class MarketServiceImpl implements MarketService {
 					if (historyDataContainer.isPresent()) {
 						historyUpdatedRecord = historyDataContainer.get();
 						historyUpdatedRecord.setStockUpdatedDateTime(lastTradedDate);
-						historyUpdatedRecord.setUpdatedBy("");
+						historyUpdatedRecord.setUpdatedBy(mode.getMode());
 						historyUpdatedRecord.setUpdatedDateTime(LocalDateTime.now());
 					} else {
 						historyUpdatedRecord = HistoricalDataUpdatedDate.builder().stockName(company.getCompanyName())
 								.stockSymbol(company.getSymbol()).market(company.getMarket())
-								.stockUpdatedDateTime(lastTradedDate).createdBy("").createdDateTime(LocalDateTime.now())
-								.updatedBy("").updatedDateTime(LocalDateTime.now()).build();
+								.stockUpdatedDateTime(lastTradedDate).createdBy(mode.getMode())
+								.createdDateTime(LocalDateTime.now()).updatedBy(mode.getMode())
+								.updatedDateTime(LocalDateTime.now()).build();
 					}
 				} else {
 					historyUpdatedRecord = HistoricalDataUpdatedDate.builder().stockName(company.getCompanyName())
 							.stockSymbol(company.getSymbol()).market(company.getMarket())
-							.stockUpdatedDateTime(START_2025).createdBy("").createdDateTime(LocalDateTime.now())
-							.updatedBy("").updatedDateTime(LocalDateTime.now()).build();
+							.stockUpdatedDateTime(START_2025).createdBy(mode.getMode())
+							.createdDateTime(LocalDateTime.now()).updatedBy(mode.getMode())
+							.updatedDateTime(LocalDateTime.now()).build();
 				}
 				historicalDataUpdatedDateRepository.save(historyUpdatedRecord);
 			} else if (company.getMarket().equals(Market.BSE)) {
@@ -234,19 +235,21 @@ public class MarketServiceImpl implements MarketService {
 					if (historyDataContainer.isPresent()) {
 						historyUpdatedRecord = historyDataContainer.get();
 						historyUpdatedRecord.setStockUpdatedDateTime(lastTradedDate);
-						historyUpdatedRecord.setUpdatedBy("");
+						historyUpdatedRecord.setUpdatedBy(mode.getMode());
 						historyUpdatedRecord.setUpdatedDateTime(LocalDateTime.now());
 					} else {
 						historyUpdatedRecord = HistoricalDataUpdatedDate.builder().stockName(company.getCompanyName())
 								.stockSymbol(company.getSymbol()).market(company.getMarket())
-								.stockUpdatedDateTime(lastTradedDate).createdBy("").createdDateTime(LocalDateTime.now())
-								.updatedBy("").updatedDateTime(LocalDateTime.now()).build();
+								.stockUpdatedDateTime(lastTradedDate).createdBy(mode.getMode())
+								.createdDateTime(LocalDateTime.now()).updatedBy(mode.getMode())
+								.updatedDateTime(LocalDateTime.now()).build();
 					}
 				} else {
 					historyUpdatedRecord = HistoricalDataUpdatedDate.builder().stockName(company.getCompanyName())
 							.stockSymbol(company.getSymbol()).market(company.getMarket())
-							.stockUpdatedDateTime(START_2025).createdBy("").createdDateTime(LocalDateTime.now())
-							.updatedBy("").updatedDateTime(LocalDateTime.now()).build();
+							.stockUpdatedDateTime(START_2025).createdBy(mode.getMode())
+							.createdDateTime(LocalDateTime.now()).updatedBy(mode.getMode())
+							.updatedDateTime(LocalDateTime.now()).build();
 				}
 				historicalDataUpdatedDateRepository.save(historyUpdatedRecord);
 			}

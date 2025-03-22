@@ -17,6 +17,8 @@ public class SumUtility {
 
 	public static final Double BROKER_MISC_CHARGES = 10.0;
 
+	public static final String LAST_UPDATED_TABLE_PK = "LAST_UPDATED_MASTER_RECORD_KEY";
+
 	private SumUtility() {
 	}
 
