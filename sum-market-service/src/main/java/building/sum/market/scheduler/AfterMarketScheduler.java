@@ -42,9 +42,8 @@ public class AfterMarketScheduler {
 				String logContent = "Daily After Market Updater Scheduler is Enabled";
 				logWriter.writeLog(logContent, type);
 				log.info(logContent);
-				String today = LocalDate.now().format(DMY_FORMATTER);
 				String tomorrow = LocalDate.now().plusDays(1).format(DMY_FORMATTER);
-				marketService.saveHistoricalStockQuote(today, tomorrow);
+				marketService.saveHistoricalStockQuote(tomorrow);
 			} else {
 				String logDisableContent = "Daily After Market Updater Scheduler is Disabled";
 				logWriter.writeLog(logDisableContent, type);

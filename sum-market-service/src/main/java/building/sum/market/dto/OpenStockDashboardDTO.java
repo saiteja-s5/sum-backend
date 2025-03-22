@@ -18,17 +18,14 @@ public class OpenStockDashboardDTO {
 	private BigDecimal totalStockCurrentValue;
 	private BigDecimal totalStockCurrentReturn;
 	private BigDecimal totalStockCurrentReturnPercent;
-	private BigDecimal totalStockOnePercentTargetValue;
-	private BigDecimal totalStockTwoPercentTargetValue;
 	private LocalDateTime openStockLastTransactionOn;
 	private LocalDateTime openStockTableUpdatedOn;
 
 	@Override
 	public String toString() {
 		return openStocks + "," + totalStockInvestmentValue + "," + totalStockCurrentValue + ","
-				+ totalStockCurrentReturn + "," + totalStockCurrentReturnPercent + "," + totalStockOnePercentTargetValue
-				+ "," + totalStockTwoPercentTargetValue + "," + openStockLastTransactionOn + ","
-				+ openStockTableUpdatedOn;
+				+ totalStockCurrentReturn + "," + totalStockCurrentReturnPercent + "," + openStockLastTransactionOn
+				+ "," + openStockTableUpdatedOn;
 	}
 
 }

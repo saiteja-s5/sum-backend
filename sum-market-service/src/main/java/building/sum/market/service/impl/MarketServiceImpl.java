@@ -122,9 +122,10 @@ public class MarketServiceImpl implements MarketService {
 		}
 	}
 
+	// TODO Created/Updated Date
 	@Override
-	public void saveHistoricalStockQuote(String from, String to) {
-		log.debug(">>>>> saveHistoricalStockQuote args - {}, {}", from, to);
+	public void saveHistoricalStockQuote(String to) {
+		log.debug(">>>>> saveHistoricalStockQuote args - {}", to);
 		List<String> skippedStocks = new ArrayList<>();
 		for (Company company : companyRepository.findByIsActive(IS_ACTIVE).stream()
 				.filter(company -> company.getSymbol() != null && company.getMarket() != null).toList()) {
@@ -186,9 +187,10 @@ public class MarketServiceImpl implements MarketService {
 			}
 		}
 		log.info("Skipped - {}", skippedStocks);
-		log.debug("<<<<< saveHistoricalStockQuote args - {}, {}", from, to);
+		log.debug("<<<<< saveHistoricalStockQuote args - {}", to);
 	}
 
+	// TODO Created/Updated Date
 	public void updateStockUpdatedDates() {
 		log.debug(">>>>> updateStockUpdatedDates");
 		for (Company company : companyRepository.findByIsActive(IS_ACTIVE).stream()

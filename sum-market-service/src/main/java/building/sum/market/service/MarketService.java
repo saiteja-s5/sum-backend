@@ -10,7 +10,7 @@ public interface MarketService {
 
 	YahooFinanceHistoricalResponseDTO getHistoricalStockQuote(Market market, String symbol, String from, String to);
 
-	void saveHistoricalStockQuote(String from, String to);
+	void saveHistoricalStockQuote(String to);
 
 	void updateStockUpdatedDates();
 

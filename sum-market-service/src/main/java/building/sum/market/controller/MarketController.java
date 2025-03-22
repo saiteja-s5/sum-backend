@@ -1,5 +1,8 @@
 package building.sum.market.controller;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -15,6 +18,7 @@ import building.sum.market.dto.YahooFinanceHistoricalResponseDTO;
 import building.sum.market.dto.YahooQuoteDTO;
 import building.sum.market.model.Market;
 import building.sum.market.service.MarketService;
+import building.sum.market.utility.SumUtility;
 import lombok.AllArgsConstructor;
 
 @CrossOrigin
@@ -24,6 +28,8 @@ import lombok.AllArgsConstructor;
 public class MarketController {
 
 	private static final Logger log = LogManager.getLogger();
+
+	private static final DateTimeFormatter DMY_FORMATTER = SumUtility.DMY_FORMATTER;
 
 	private final MarketService marketService;
 
@@ -48,9 +54,10 @@ public class MarketController {
 
 	@GetMapping("/historical-quote-save")
 	@ResponseStatus(code = HttpStatus.OK)
-	public void saveHistoricalStocksQuotes(@RequestParam String from, @RequestParam String to) {
-		log.info("Request received to save historical stock data between {} - {}", from, to);
-		marketService.saveHistoricalStockQuote(from, to);
+	public void saveHistoricalStocksQuotes(@RequestParam(required = false) String to) {
+		String newTo = setDefaultToDateIfNotPresent(to);
+		log.info("Request received to save historical stock data between last saved date and - {}", newTo);
+		marketService.saveHistoricalStockQuote(newTo);
 	}
 
 	@GetMapping("/historical-quote-save-updated-date")
@@ -65,6 +72,14 @@ public class MarketController {
 			return Market.NSE;
 		} else {
 			return Market.valueOf(market.toUpperCase());
+		}
+	}
+
+	private String setDefaultToDateIfNotPresent(String to) {
+		if (to == null) {
+			return LocalDate.now().format(DMY_FORMATTER);
+		} else {
+			return to;
 		}
 	}
 

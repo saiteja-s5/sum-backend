@@ -44,6 +44,7 @@ public class DashboardServiceImpl implements DashboardService {
 
 	private final MarketService marketService;
 
+	// TODO Open Stock Table Updated On
 	@Override
 	public OpenStockDashboardDTO getOpenStockHoldings(String userJoinkey) {
 		log.debug(">>>>> getOpenStockHoldings args - {}", userJoinkey);
@@ -66,13 +67,7 @@ public class DashboardServiceImpl implements DashboardService {
 						.totalStockInvestmentValue(SumUtility.roundTo(totalInvestmentValue, 2))
 						.totalStockCurrentValue(SumUtility.roundTo(currentValue, 2))
 						.totalStockCurrentReturn(SumUtility.roundTo(currentReturn, 2))
-						.totalStockCurrentReturnPercent(currentReturnPercentage)
-						.totalStockOnePercentTargetValue(SumUtility
-								.roundTo(openStocks.stream().map(stock -> stock.getOnePercentTarget().doubleValue())
-										.reduce(0.0, (v1, v2) -> v1 + v2), 2))
-						.totalStockTwoPercentTargetValue(SumUtility
-								.roundTo(openStocks.stream().map(stock -> stock.getTwoPercentTarget().doubleValue())
-										.reduce(0.0, (v1, v2) -> v1 + v2), 2))
+						.totalStockCurrentReturnPercent(SumUtility.roundTo(currentReturnPercentage.doubleValue(), 2))
 						.openStockLastTransactionOn(
 								latestBuyDateContainer.isPresent() ? latestBuyDateContainer.get().getBuyDate() : null)
 						.openStockTableUpdatedOn(LocalDateTime.now()).build();
@@ -88,6 +83,7 @@ public class DashboardServiceImpl implements DashboardService {
 		}
 	}
 
+	// TODO Fund Table Updated On
 	@Override
 	public FundDashboardDTO getFunds(String userJoinkey) {
 		log.debug(">>>>> getFunds args - {}", userJoinkey);
@@ -123,6 +119,7 @@ public class DashboardServiceImpl implements DashboardService {
 		}
 	}
 
+	// TODO Dividend Table Updated On
 	@Override
 	public DividendDashboardDTO getDividends(String userJoinkey) {
 		log.debug(">>>>> getDividends args - {}", userJoinkey);
@@ -153,6 +150,7 @@ public class DashboardServiceImpl implements DashboardService {
 		}
 	}
 
+	// TODO Closed Stock Table Updated On and percentReturnPerTransaction
 	@Override
 	public ClosedStockDashboardDTO getClosedStockHoldings(String userJoinkey) {
 		log.debug(">>>>> getClosedStockHoldings args - {}", userJoinkey);
@@ -173,6 +171,8 @@ public class DashboardServiceImpl implements DashboardService {
 						.totalBoughtAmountValue(SumUtility.roundTo(totalBoughtAmountValue, 2))
 						.totalSoldAmountValue(SumUtility.roundTo(totalSellAmountValue, 2))
 						.totalProfitLossValue(SumUtility.roundTo(totalProfitLossValue, 2))
+						.totalProfitLossPercentage(SumUtility.roundTo(SumUtility
+								.getPercentageReturn(totalBoughtAmountValue, totalSellAmountValue).doubleValue(), 2))
 						.percentReturnPerTransaction(SumUtility.roundTo(percentReturnPerTransaction, 2))
 						.closedStockLastTransactionOn(
 								latestBuyDateContainer.isPresent() ? latestBuyDateContainer.get().getSellDate() : null)

@@ -17,6 +17,7 @@ public class ClosedStockDashboardDTO {
 	private BigDecimal totalProfitLossValue;
 	private BigDecimal totalBoughtAmountValue;
 	private BigDecimal totalSoldAmountValue;
+	private BigDecimal totalProfitLossPercentage;
 	private BigDecimal percentReturnPerTransaction;
 	private LocalDateTime closedStockLastTransactionOn;
 	private LocalDateTime closedStockTableUpdatedOn;
@@ -24,8 +25,8 @@ public class ClosedStockDashboardDTO {
 	@Override
 	public String toString() {
 		return closedStocks + "," + totalProfitLossValue + "," + totalBoughtAmountValue + "," + totalSoldAmountValue
-				+ "," + percentReturnPerTransaction + "," + closedStockLastTransactionOn + ","
-				+ closedStockTableUpdatedOn;
+				+ "," + totalProfitLossPercentage + "," + percentReturnPerTransaction + ","
+				+ closedStockLastTransactionOn + "," + closedStockTableUpdatedOn;
 	}
 
 }
