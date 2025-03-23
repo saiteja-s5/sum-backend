@@ -167,7 +167,6 @@ public class DashboardServiceImpl implements DashboardService {
 		}
 	}
 
-	// TODO percentReturnPerTransaction
 	@Override
 	public ClosedStockDashboardDTO getClosedStockHoldings(String userJoinkey) {
 		log.debug(">>>>> getClosedStockHoldings args - {}", userJoinkey);
@@ -181,7 +180,9 @@ public class DashboardServiceImpl implements DashboardService {
 				double totalSellAmountValue = closedStocks.stream().map(stock -> stock.getSellValue().doubleValue())
 						.reduce(0.0, (v1, v2) -> v1 + v2);
 				double totalProfitLossValue = totalSellAmountValue - totalBoughtAmountValue;
-				double percentReturnPerTransaction = 0;
+				double percentReturnPerTransaction = SumUtility
+						.getPercentageReturn(totalBoughtAmountValue, totalSellAmountValue).doubleValue()
+						/ closedStocks.size();
 				Optional<ClosedStockDashboardRowDTO> latestBuyDateContainer = closedStocks.stream()
 						.max(Comparator.comparing(ClosedStockDashboardRowDTO::getSellDate));
 				Optional<TableLastUpdateDetails> updatedDateContainer = tableLastUpdateDetailsRepository
