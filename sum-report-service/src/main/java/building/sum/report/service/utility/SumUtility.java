@@ -1,30 +1,20 @@
 package building.sum.report.service.utility;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
 
 public class SumUtility {
+
+	public static final DateTimeFormatter DMYW_FORMAT = DateTimeFormatter.ofPattern("dd-MM-yyyy, EEEE");
+
+	public static final DateTimeFormatter DMY_WITH_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy, hh:mm a");
+
+	public static final String APP_DETAILS_TABLE_PK = "APP_DETAILS_MASTER_RECORD_KEY";
 
 	public static final int MONTHS_IN_YEAR = 12;
 
 	public static final Double BROKER_MISC_CHARGES = 10.0;
-
-	public static final LocalDate STOCK_START_DATE = LocalDate.of(2021, 1, 18);
-
-	public static final LocalDate MUTUAL_FUND_START_DATE = LocalDate.of(2021, 8, 14);
-
-	public static final LocalDate FUND_START_DATE = LocalDate.of(2021, 1, 18);
-
-	public static final LocalDate DIVIDEND_START_DATE = LocalDate.of(2021, 3, 10);
-
-	public static final LocalDate SOLD_START_DATE = LocalDate.of(2021, 1, 18);
-
-	public static final LocalDate EPOCH_SECOND_EXCEEDS_INTEGER_ON = LocalDate.of(2038, 1, 19);
-	
-	public static final String TABLE_UPDATES_PK = "SUM-TABLE-UPDATES";
-	
-	public static final String TABLE_APP_DETAILS_PK = "SUM-APP-DETAILS";
 
 	private SumUtility() {
 	}
@@ -33,10 +23,6 @@ public class SumUtility {
 		int months = holdDuration.getYears() * MONTHS_IN_YEAR + holdDuration.getMonths()
 				+ (holdDuration.getDays() > 0 ? 1 : 0);
 		return roundTo((months * percent * buyPrice * 0.01) + buyPrice + (BROKER_MISC_CHARGES / quantity), 2);
-	}
-
-	public static BigDecimal getPercentageReturn(Double buyPrice, Double sellPrice) {
-		return roundTo(((sellPrice - buyPrice) / buyPrice) * 100, 2);
 	}
 
 	public static BigDecimal roundTo(Double number, int places) {

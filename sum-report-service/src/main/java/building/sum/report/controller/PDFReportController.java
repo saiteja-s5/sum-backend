@@ -12,20 +12,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import building.sum.report.service.PdfReportService;
+import building.sum.report.service.PDFReportService;
 import lombok.AllArgsConstructor;
 
 @CrossOrigin
 @RestController
 @AllArgsConstructor
-@RequestMapping("/pdf-reports")
-public class PdfReportController {
+@RequestMapping("/pdf-report")
+public class PDFReportController {
 
 	private static final Logger log = LogManager.getLogger();
 
-	private final PdfReportService pdfReportService;
+	private final PDFReportService pdfReportService;
 
-	@GetMapping("/after-market/{userJoinKey}")
+	@GetMapping("/daily-after-market/{userJoinKey}")
 	public ResponseEntity<byte[]> generateAfterMarketReport(@PathVariable String userJoinKey) {
 		log.info("Request received to generate after market pdf report on {} for user - {}", LocalDateTime.now(),
 				userJoinKey);

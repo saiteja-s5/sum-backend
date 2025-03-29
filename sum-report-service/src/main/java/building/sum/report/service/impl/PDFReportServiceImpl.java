@@ -2,9 +2,7 @@ package building.sum.report.service.impl;
 
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -23,46 +21,38 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClient.Builder;
 
-import building.sum.report.dto.StockDashboardDTO;
+import building.sum.report.dto.OpenStockDashboardDTO;
 import building.sum.report.exception.ResourceGenerationFailedException;
 import building.sum.report.exception.ResourceNotFoundException;
 import building.sum.report.model.AppDetails;
+import building.sum.report.model.ReportTemplate;
+import building.sum.report.model.ReportTemplateKey;
 import building.sum.report.model.User;
-import building.sum.report.service.PdfReportService;
+import building.sum.report.service.PDFReportService;
 import building.sum.report.service.repository.AppDetailsRepository;
+import building.sum.report.service.repository.ReportTemplateRepository;
 import building.sum.report.service.repository.UserRepository;
 import building.sum.report.service.utility.SumUtility;
 
 @Service
-public class PdfReportServiceImpl implements PdfReportService {
+public class PDFReportServiceImpl implements PDFReportService {
 
 	private static final Logger log = LogManager.getLogger();
 
-	private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy, EEEE");
+	private static final DateTimeFormatter DMYW_FORMAT = SumUtility.DMYW_FORMAT;
 
-	private final DateTimeFormatter dateTimeFormatterWithTime = DateTimeFormatter.ofPattern("dd-MM-yyyy, hh:mm a");
+	private static final DateTimeFormatter DMY_WITH_TIME = SumUtility.DMY_WITH_TIME;
 
-	private ResourceLoader loader;
+	private final WebClient.Builder webClientBuilder;
 
-	private WebClient.Builder webClientBuilder;
+	private final UserRepository userRepository;
 
-	private UserRepository userRepository;
+	private final AppDetailsRepository appDetailsRepository;
 
-	private AppDetailsRepository appDetailsRepository;
-
-	public PdfReportServiceImpl(ResourceLoader loader, Builder webClientBuilder, UserRepository userRepository,
-			AppDetailsRepository appDetailsRepository) {
-		super();
-		this.loader = loader;
-		this.webClientBuilder = webClientBuilder;
-		this.userRepository = userRepository;
-		this.appDetailsRepository = appDetailsRepository;
-	}
+	private final ReportTemplateRepository reportTemplateRepository;
 
 	@Value("${pdf.author-name}")
 	private String author;
@@ -76,29 +66,13 @@ public class PdfReportServiceImpl implements PdfReportService {
 	@Value("${pdf.title}")
 	private String title;
 
-	@Value("${pdf.passowrd.encryption-key-length}")
-	private Integer excryptionKeyLength;
-
-	@Value("${pdf.logo-file-name}")
-	private String imageName;
-
-	@Value("${pdf.heading}")
-	private String heading;
-
-	@Value("${pdf.header-font-size}")
-	private Integer headerFontSize;
-
-	@Value("${pdf.body-font-size}")
-	private Integer bodyFontSize;
-
-	@Value("${pdf.paragraph-line-spacing}")
-	private Integer lineSpacing;
-
-	@Value("${pdf.paragraph-line-spacing-small}")
-	private Integer lineSpacingSmall;
-
-	@Value("${pdf.body-font-small-size}")
-	private Integer bodySmallFontSize;
+	public PDFReportServiceImpl(WebClient.Builder webClientBuilder, UserRepository userRepository,
+			AppDetailsRepository appDetailsRepository, ReportTemplateRepository reportTemplateRepository) {
+		this.webClientBuilder = webClientBuilder;
+		this.userRepository = userRepository;
+		this.appDetailsRepository = appDetailsRepository;
+		this.reportTemplateRepository = reportTemplateRepository;
+	}
 
 	@Override
 	public byte[] generateAfterMarketPdfReport(String userJoinKey) {
@@ -112,13 +86,25 @@ public class PdfReportServiceImpl implements PdfReportService {
 			currentUser = currentUserContainer.get();
 		}
 
-		Optional<AppDetails> detailsContainer = appDetailsRepository.findById(SumUtility.TABLE_APP_DETAILS_PK);
+		// App Details Fetch
+		Optional<AppDetails> detailsContainer = appDetailsRepository.findById(SumUtility.APP_DETAILS_TABLE_PK);
 		AppDetails details;
 		if (!detailsContainer.isPresent()) {
 			throw new ResourceNotFoundException(
-					String.format("App Details with Key - %s not found", SumUtility.TABLE_APP_DETAILS_PK));
+					String.format("App Details with Key - %s not found", SumUtility.APP_DETAILS_TABLE_PK));
 		} else {
 			details = detailsContainer.get();
+		}
+
+		// Report Configuration Fetch
+		Optional<ReportTemplate> templateContainer = reportTemplateRepository
+				.findById(ReportTemplateKey.DAILY_AFTER_MARKET.getPrimaryKey());
+		ReportTemplate template;
+		if (!templateContainer.isPresent()) {
+			throw new ResourceNotFoundException(String.format("Template Details with Key - %s not found",
+					ReportTemplateKey.DAILY_AFTER_MARKET.getPrimaryKey()));
+		} else {
+			template = templateContainer.get();
 		}
 
 		try (PDDocument document = new PDDocument()) {
@@ -128,8 +114,8 @@ public class PdfReportServiceImpl implements PdfReportService {
 
 			float pageWidth = page.getMediaBox().getWidth();
 			float pageHeight = page.getMediaBox().getHeight();
-			float leftPadding = 20;
-			float topPadding = 10;
+			float leftPadding = template.getLeftPadding().floatValue();
+			float topPadding = template.getTopPadding().floatValue();
 
 			try (PDPageContentStream stream = new PDPageContentStream(document, page)) {
 
@@ -138,66 +124,68 @@ public class PdfReportServiceImpl implements PdfReportService {
 				PDType1Font bodyFontBold = new PDType1Font(Standard14Fonts.FontName.TIMES_BOLD);
 
 				// Set SUM Logo
-				URI imageUrl = loader.getResource("classpath:" + File.separator + "images" + File.separator + imageName)
-						.getURI();
-				PDImageXObject sumIcon = PDImageXObject.createFromFile(imageUrl.getPath(), document);
+				PDImageXObject sumIcon = PDImageXObject.createFromByteArray(document, template.getLogo().getData(),
+						template.getLogoName());
 				stream.drawImage(sumIcon, leftPadding / 2, pageHeight - sumIcon.getHeight() - topPadding);
 
 				// Set Heading
 				stream.beginText();
-				stream.setFont(headerFont, headerFontSize);
-				stream.newLineAtOffset(pageWidth / 2 - getTextWidth(heading, headerFont, headerFontSize) / 2,
+				stream.setFont(headerFont, template.getHeaderFontSize().floatValue());
+				stream.newLineAtOffset(pageWidth / 2
+						- getTextWidth(template.getHeadingText(), headerFont, template.getHeaderFontSize().intValue())
+								/ 2,
 						pageHeight - topPadding * 6);
-				stream.showText(heading);
+				stream.showText(template.getHeadingText());
 				stream.endText();
 
 				// Set User Details
 				stream.beginText();
-				stream.setLeading(lineSpacing);
+				stream.setLeading(template.getParagraphLineSpacing().floatValue());
 				stream.newLineAtOffset(leftPadding, pageHeight - sumIcon.getHeight() - topPadding - 2 * topPadding);
 
-				stream.setFont(bodyFontBold, bodyFontSize);
+				stream.setFont(bodyFontBold, template.getBodyFontSize().floatValue());
 				stream.showText("Name");
 				stream.showText(" : ");
-				stream.setFont(bodyFont, bodyFontSize);
+				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 				stream.showText(currentUser.getFirstName());
 				stream.newLine();
 
-				stream.setFont(bodyFontBold, bodyFontSize);
+				stream.setFont(bodyFontBold, template.getBodyFontSize().floatValue());
 				stream.showText("Phone");
 				stream.showText(" : ");
-				stream.setFont(bodyFont, bodyFontSize);
+				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 				stream.showText(currentUser.getContactNumber());
 				stream.newLine();
 
-				stream.setFont(bodyFontBold, bodyFontSize);
+				stream.setFont(bodyFontBold, template.getBodyFontSize().floatValue());
 				stream.showText("Email");
 				stream.showText(" : ");
-				stream.setFont(bodyFont, bodyFontSize);
+				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 				stream.showText(currentUser.getEmailId());
 				stream.newLine();
 
-				stream.setFont(bodyFontBold, bodyFontSize);
+				stream.setFont(bodyFontBold, template.getBodyFontSize().floatValue());
 				stream.showText("Pancard");
 				stream.showText(" : ");
-				stream.setFont(bodyFont, bodyFontSize);
+				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 				stream.showText(currentUser.getPancardNumber());
 				stream.newLine();
 
-				stream.setFont(bodyFontBold, bodyFontSize);
+				stream.setFont(bodyFontBold, template.getBodyFontSize().floatValue());
 				stream.showText("Trade Date");
 				stream.showText(" : ");
-				stream.setFont(bodyFont, bodyFontSize);
-				stream.showText(LocalDate.now().format(dateTimeFormatter));
+				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
+				stream.showText(LocalDate.now().format(DMYW_FORMAT));
 				stream.newLine();
 				stream.endText();
 
 				// Table Current Holdings
 
-				// Stock Investment Breakdown
-				StockDashboardDTO holdings = webClientBuilder.build().get()
-						.uri("http://localhost:9595/daily-market/" + userJoinKey + "/dashboard").retrieve()
-						.bodyToMono(StockDashboardDTO.class).block();
+				//TODO LoadBalanced
+				// 1. Stock Investment Breakdown
+				OpenStockDashboardDTO holdings = webClientBuilder.build().get()
+						.uri("http://localhost:9393/dashboard/" + userJoinKey + "/open-stock").retrieve()
+						.bodyToMono(OpenStockDashboardDTO.class).block();
 
 				if (holdings != null) {
 
@@ -206,7 +194,7 @@ public class PdfReportServiceImpl implements PdfReportService {
 					stream.newLineAtOffset(leftPadding,
 							pageHeight - sumIcon.getHeight() - topPadding - 17 * topPadding);
 					stream.setNonStrokingColor(Color.BLACK);
-					stream.setFont(bodyFontBold, bodyFontSize * 1.1f);
+					stream.setFont(bodyFontBold, template.getBodyFontSize().floatValue() * 1.1f);
 					stream.showText(stockHeading);
 					stream.endText();
 
@@ -215,47 +203,47 @@ public class PdfReportServiceImpl implements PdfReportService {
 							pageHeight - sumIcon.getHeight() - topPadding - 20 * topPadding);
 
 					stream.setNonStrokingColor(Color.BLACK);
-					stream.setFont(bodyFont, bodyFontSize);
+					stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 					stream.showText("Total Investment");
 					stream.showText(" : ");
 					stream.setNonStrokingColor(Color.BLUE);
-					stream.setFont(bodyFont, bodyFontSize);
+					stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 					stream.showText(Optional.ofNullable(holdings.getTotalStockInvestmentValue()).isPresent()
 							? holdings.getTotalStockInvestmentValue().toString()
 							: "0");
 					stream.newLine();
 
 					stream.setNonStrokingColor(Color.BLACK);
-					stream.setFont(bodyFont, bodyFontSize);
+					stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 					stream.showText("Current Return");
 					stream.showText(" : ");
 					stream.setNonStrokingColor(
 							holdings.getTotalStockCurrentReturn().doubleValue() > 0 ? Color.GREEN : Color.RED);
-					stream.setFont(bodyFont, bodyFontSize);
+					stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentReturn()).isPresent()
 							? holdings.getTotalStockCurrentReturn().toString()
 							: "0");
 					stream.newLine();
 
 					stream.setNonStrokingColor(Color.BLACK);
-					stream.setFont(bodyFont, bodyFontSize);
+					stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 					stream.showText("Current Return %");
 					stream.showText(" : ");
 					stream.setNonStrokingColor(
 							holdings.getTotalStockCurrentReturnPercent().doubleValue() > 0 ? Color.GREEN : Color.RED);
-					stream.setFont(bodyFont, bodyFontSize);
+					stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentReturnPercent()).isPresent()
 							? holdings.getTotalStockCurrentReturnPercent().toString()
 							: "0");
 					stream.newLine();
 
 					stream.setNonStrokingColor(Color.BLACK);
-					stream.setFont(bodyFont, bodyFontSize);
+					stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 					stream.showText("Current Portfolio Value");
 					stream.showText(" : ");
 					stream.setNonStrokingColor(holdings.getTotalStockCurrentValue().doubleValue() > holdings
 							.getTotalStockInvestmentValue().doubleValue() ? Color.GREEN : Color.RED);
-					stream.setFont(bodyFont, bodyFontSize);
+					stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentValue()).isPresent()
 							? holdings.getTotalStockCurrentValue().toString()
 							: "0");
@@ -264,86 +252,76 @@ public class PdfReportServiceImpl implements PdfReportService {
 					stream.endText();
 				}
 
-				// Mutual Fund Investment Breakdown
+				// 2. Mutual Fund Investment Breakdown
 				// TODO Mutual Fund Api
 //				StockDashboardDTO holdings = webClientBuilder.build().get()
 //						.uri("http://localhost:9595/daily-market/" + userJoinKey + "/dashboard").retrieve()
 //						.bodyToMono(StockDashboardDTO.class).block();
 
 //				if (holdings != null) {
-
-				stream.beginText();
-				String mutualFundHeading = "Mutual Fund Investment Breakdown";
-				stream.newLineAtOffset(leftPadding, pageHeight - sumIcon.getHeight() - topPadding - 32 * topPadding);
-				stream.setNonStrokingColor(Color.BLACK);
-				stream.setFont(bodyFontBold, bodyFontSize * 1.1f);
-				stream.showText(mutualFundHeading);
-				stream.endText();
-
-				stream.beginText();
-				stream.newLineAtOffset(leftPadding, pageHeight - sumIcon.getHeight() - topPadding - 35 * topPadding);
-
-				stream.setNonStrokingColor(Color.BLACK);
-				stream.setFont(bodyFont, bodyFontSize);
-				stream.showText("Total Investment");
-				stream.showText(" : ");
-				stream.setNonStrokingColor(Color.BLUE);
-				stream.setFont(bodyFont, bodyFontSize);
-				stream.showText("XXX");
-//					stream.showText(Optional.ofNullable(holdings.getTotalStockInvestmentValue()).isPresent()
-//							? holdings.getTotalStockInvestmentValue().toString()
-//							: "0");
-				stream.newLine();
-
-				stream.setNonStrokingColor(Color.BLACK);
-				stream.setFont(bodyFont, bodyFontSize);
-				stream.showText("Current Return");
-				stream.showText(" : ");
-				stream.setNonStrokingColor(
-						holdings.getTotalStockCurrentReturn().doubleValue() > 0 ? Color.GREEN : Color.RED);
-				stream.setFont(bodyFont, bodyFontSize);
-				stream.showText("XXX");
-//					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentReturn()).isPresent()
-//							? holdings.getTotalStockCurrentReturn().toString()
-//							: "0");
-				stream.newLine();
-
-				stream.setNonStrokingColor(Color.BLACK);
-				stream.setFont(bodyFont, bodyFontSize);
-				stream.showText("Current Return %");
-				stream.showText(" : ");
-				stream.setNonStrokingColor(
-						holdings.getTotalStockCurrentReturnPercent().doubleValue() > 0 ? Color.GREEN : Color.RED);
-				stream.setFont(bodyFont, bodyFontSize);
-				stream.showText("XXX");
-//					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentReturnPercent()).isPresent()
-//							? holdings.getTotalStockCurrentReturnPercent().toString()
-//							: "0");
-				stream.newLine();
-
-				stream.setNonStrokingColor(Color.BLACK);
-				stream.setFont(bodyFont, bodyFontSize);
-				stream.showText("Current Portfolio Value");
-				stream.showText(" : ");
-				stream.setNonStrokingColor(holdings.getTotalStockCurrentValue().doubleValue() > holdings
-						.getTotalStockInvestmentValue().doubleValue() ? Color.GREEN : Color.RED);
-				stream.setFont(bodyFont, bodyFontSize);
-				stream.showText("XXX");
-//					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentValue()).isPresent()
-//							? holdings.getTotalStockCurrentValue().toString()
-//							: "0");
-				stream.newLine();
-
-				stream.endText();
-//				}
-
+				/*
+				 * stream.beginText(); String mutualFundHeading =
+				 * "Mutual Fund Investment Breakdown"; stream.newLineAtOffset(leftPadding,
+				 * pageHeight - sumIcon.getHeight() - topPadding - 32 * topPadding);
+				 * stream.setNonStrokingColor(Color.BLACK); stream.setFont(bodyFontBold,
+				 * template.getBodyFontSize().floatValue() * 1.1f);
+				 * stream.showText(mutualFundHeading); stream.endText();
+				 * 
+				 * stream.beginText(); stream.newLineAtOffset(leftPadding, pageHeight -
+				 * sumIcon.getHeight() - topPadding - 35 * topPadding);
+				 * 
+				 * stream.setNonStrokingColor(Color.BLACK); stream.setFont(bodyFont,
+				 * template.getBodyFontSize().floatValue());
+				 * stream.showText("Total Investment"); stream.showText(" : ");
+				 * stream.setNonStrokingColor(Color.BLUE); stream.setFont(bodyFont,
+				 * template.getBodyFontSize().floatValue()); stream.showText("XXX"); //
+				 * stream.showText(Optional.ofNullable(holdings.getTotalStockInvestmentValue()).
+				 * isPresent() // ? holdings.getTotalStockInvestmentValue().toString() // :
+				 * "0"); stream.newLine();
+				 * 
+				 * stream.setNonStrokingColor(Color.BLACK); stream.setFont(bodyFont,
+				 * template.getBodyFontSize().floatValue()); stream.showText("Current Return");
+				 * stream.showText(" : "); stream.setNonStrokingColor(
+				 * holdings.getTotalStockCurrentReturn().doubleValue() > 0 ? Color.GREEN :
+				 * Color.RED); stream.setFont(bodyFont,
+				 * template.getBodyFontSize().floatValue()); stream.showText("XXX"); //
+				 * stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentReturn()).
+				 * isPresent() // ? holdings.getTotalStockCurrentReturn().toString() // : "0");
+				 * stream.newLine();
+				 * 
+				 * stream.setNonStrokingColor(Color.BLACK); stream.setFont(bodyFont,
+				 * template.getBodyFontSize().floatValue());
+				 * stream.showText("Current Return %"); stream.showText(" : ");
+				 * stream.setNonStrokingColor(
+				 * holdings.getTotalStockCurrentReturnPercent().doubleValue() > 0 ? Color.GREEN
+				 * : Color.RED); stream.setFont(bodyFont,
+				 * template.getBodyFontSize().floatValue()); stream.showText("XXX"); //
+				 * stream.showText(Optional.ofNullable(holdings.
+				 * getTotalStockCurrentReturnPercent()).isPresent() // ?
+				 * holdings.getTotalStockCurrentReturnPercent().toString() // : "0");
+				 * stream.newLine();
+				 * 
+				 * stream.setNonStrokingColor(Color.BLACK); stream.setFont(bodyFont,
+				 * template.getBodyFontSize().floatValue());
+				 * stream.showText("Current Portfolio Value"); stream.showText(" : ");
+				 * stream.setNonStrokingColor(holdings.getTotalStockCurrentValue().doubleValue()
+				 * > holdings .getTotalStockInvestmentValue().doubleValue() ? Color.GREEN :
+				 * Color.RED); stream.setFont(bodyFont,
+				 * template.getBodyFontSize().floatValue()); stream.showText("XXX"); //
+				 * stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentValue()).
+				 * isPresent() // ? holdings.getTotalStockCurrentValue().toString() // : "0");
+				 * stream.newLine();
+				 * 
+				 * stream.endText(); // }
+				 */
 				// Table Summary
+				// TODO Recalculating
 
 				stream.beginText();
 				String summaryHeading = "Overall Investment Breakdown";
 				stream.newLineAtOffset(leftPadding, pageHeight - sumIcon.getHeight() - topPadding - 47 * topPadding);
 				stream.setNonStrokingColor(Color.BLACK);
-				stream.setFont(bodyFontBold, bodyFontSize * 1.1f);
+				stream.setFont(bodyFontBold, template.getBodyFontSize().floatValue() * 1.1f);
 				stream.showText(summaryHeading);
 				stream.endText();
 
@@ -351,11 +329,11 @@ public class PdfReportServiceImpl implements PdfReportService {
 				stream.newLineAtOffset(leftPadding, pageHeight - sumIcon.getHeight() - topPadding - 50 * topPadding);
 
 				stream.setNonStrokingColor(Color.BLACK);
-				stream.setFont(bodyFont, bodyFontSize);
+				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 				stream.showText("Total Investment");
 				stream.showText(" : ");
 				stream.setNonStrokingColor(Color.BLUE);
-				stream.setFont(bodyFont, bodyFontSize);
+				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 				stream.showText("XXX");
 //					stream.showText(Optional.ofNullable(holdings.getTotalStockInvestmentValue()).isPresent()
 //							? holdings.getTotalStockInvestmentValue().toString()
@@ -363,12 +341,12 @@ public class PdfReportServiceImpl implements PdfReportService {
 				stream.newLine();
 
 				stream.setNonStrokingColor(Color.BLACK);
-				stream.setFont(bodyFont, bodyFontSize);
+				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 				stream.showText("Current Return");
 				stream.showText(" : ");
 				stream.setNonStrokingColor(
 						holdings.getTotalStockCurrentReturn().doubleValue() > 0 ? Color.GREEN : Color.RED);
-				stream.setFont(bodyFont, bodyFontSize);
+				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 				stream.showText("XXX");
 //					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentReturn()).isPresent()
 //							? holdings.getTotalStockCurrentReturn().toString()
@@ -376,12 +354,12 @@ public class PdfReportServiceImpl implements PdfReportService {
 				stream.newLine();
 
 				stream.setNonStrokingColor(Color.BLACK);
-				stream.setFont(bodyFont, bodyFontSize);
+				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 				stream.showText("Current Return %");
 				stream.showText(" : ");
 				stream.setNonStrokingColor(
 						holdings.getTotalStockCurrentReturnPercent().doubleValue() > 0 ? Color.GREEN : Color.RED);
-				stream.setFont(bodyFont, bodyFontSize);
+				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 				stream.showText("XXX");
 //					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentReturnPercent()).isPresent()
 //							? holdings.getTotalStockCurrentReturnPercent().toString()
@@ -389,12 +367,12 @@ public class PdfReportServiceImpl implements PdfReportService {
 				stream.newLine();
 
 				stream.setNonStrokingColor(Color.BLACK);
-				stream.setFont(bodyFont, bodyFontSize);
+				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 				stream.showText("Current Portfolio Value");
 				stream.showText(" : ");
 				stream.setNonStrokingColor(holdings.getTotalStockCurrentValue().doubleValue() > holdings
 						.getTotalStockInvestmentValue().doubleValue() ? Color.GREEN : Color.RED);
-				stream.setFont(bodyFont, bodyFontSize);
+				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 				stream.showText("XXX");
 //					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentValue()).isPresent()
 //							? holdings.getTotalStockCurrentValue().toString()
@@ -406,37 +384,39 @@ public class PdfReportServiceImpl implements PdfReportService {
 				// Signature
 				stream.beginText();
 				stream.setNonStrokingColor(Color.BLACK);
-				stream.setLeading(lineSpacingSmall);
+				stream.setLeading(template.getParagraphLineSpacingSmall().floatValue());
 				stream.newLineAtOffset(leftPadding, 5 * topPadding);
-				stream.setFont(bodyFontBold, bodySmallFontSize);
+				stream.setFont(bodyFontBold, template.getBodyFontSizeSmall().floatValue());
 				stream.showText("Date");
 				stream.showText(" : ");
-				stream.setFont(bodyFont, bodySmallFontSize);
-				stream.showText(LocalDateTime.now().format(dateTimeFormatterWithTime));
+				stream.setFont(bodyFont, template.getBodyFontSizeSmall().floatValue());
+				stream.showText(LocalDateTime.now().format(DMY_WITH_TIME));
 				stream.newLine();
 
-				stream.setFont(bodyFontBold, bodySmallFontSize);
+				stream.setFont(bodyFontBold, template.getBodyFontSizeSmall().floatValue());
 				stream.showText("Place");
 				stream.showText(" : ");
-				stream.setFont(bodyFont, bodySmallFontSize);
+				stream.setFont(bodyFont, template.getBodyFontSizeSmall().floatValue());
 				stream.showText(details.getAppAddressCity());
 				stream.newLine();
 				stream.endText();
 
 				stream.beginText();
-				stream.setLeading(lineSpacingSmall);
+				stream.setLeading(template.getParagraphLineSpacingSmall().floatValue());
 				String salutation = "Yours faithfully,";
-				stream.newLineAtOffset(pageWidth - getTextWidth(salutation, bodyFont, bodySmallFontSize) - leftPadding,
+				stream.newLineAtOffset(pageWidth
+						- getTextWidth(salutation, bodyFont, template.getBodyFontSizeSmall().intValue()) - leftPadding,
 						5 * topPadding);
-				stream.setFont(bodyFont, bodySmallFontSize);
+				stream.setFont(bodyFont, template.getBodyFontSizeSmall().floatValue());
 				stream.showText(salutation);
 				stream.newLine();
 				stream.endText();
 
 				stream.beginText();
-				stream.newLineAtOffset(pageWidth - getTextWidth(salutation, bodyFont, bodySmallFontSize),
+				stream.newLineAtOffset(
+						pageWidth - getTextWidth(salutation, bodyFont, template.getBodyFontSizeSmall().intValue()),
 						3 * topPadding);
-				stream.setFont(bodyFontBold, bodySmallFontSize);
+				stream.setFont(bodyFontBold, template.getBodyFontSizeSmall().floatValue());
 				stream.showText(author);
 				stream.newLine();
 				stream.endText();
@@ -444,8 +424,10 @@ public class PdfReportServiceImpl implements PdfReportService {
 			}
 
 			setInformation(document);
-			setPassword(document, currentUser, details);
-			
+			if (template.getPasswordProtected().booleanValue()) {
+				setPassword(document, currentUser, details, template.getPasswordLength().intValue());
+			}
+
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			document.save(baos);
 			return baos.toByteArray();
@@ -465,13 +447,13 @@ public class PdfReportServiceImpl implements PdfReportService {
 		information.setTitle(title);
 	}
 
-	private void setPassword(PDDocument document, User currentUser, AppDetails details) {
+	private void setPassword(PDDocument document, User currentUser, AppDetails details, int length) {
 		try {
 			AccessPermission permissions = new AccessPermission();
 			permissions.setReadOnly();
-			StandardProtectionPolicy policy = new StandardProtectionPolicy(details.getAppReportsOwnerPassword(),
+			StandardProtectionPolicy policy = new StandardProtectionPolicy(currentUser.getPancardNumber(),
 					currentUser.getPancardNumber(), permissions);
-			policy.setEncryptionKeyLength(excryptionKeyLength);
+			policy.setEncryptionKeyLength(length);
 			document.protect(policy);
 		} catch (IOException e) {
 			log.error("Password not set");

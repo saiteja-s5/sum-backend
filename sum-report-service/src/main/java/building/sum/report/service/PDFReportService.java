@@ -1,6 +1,6 @@
 package building.sum.report.service;
 
-public interface PdfReportService {
+public interface PDFReportService {
 
 	byte[] generateAfterMarketPdfReport(String userJoinKey);
 

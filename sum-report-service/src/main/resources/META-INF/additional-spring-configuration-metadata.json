@@ -1,11 +1,6 @@
 {
 	"properties": [
 		{
-			"name": "pdf.logo-file-name",
-			"type": "java.lang.String",
-			"description": "A description for 'pdf.logo-file-name'"
-		},
-		{
 			"name": "pdf.author-name",
 			"type": "java.lang.String",
 			"description": "A description for 'pdf.author-name'"
@@ -24,41 +19,6 @@
 			"name": "pdf.creator",
 			"type": "java.lang.String",
 			"description": "A description for 'pdf.creator'"
-		},
-		{
-			"name": "pdf.passowrd.encryption-key-length",
-			"type": "java.lang.Integer",
-			"description": "A description for 'pdf.passowrd.encryption-key-length'"
-		},
-		{
-			"name": "pdf.header-font-size",
-			"type": "java.lang.Integer",
-			"description": "A description for 'pdf.header-font-size'"
-		},
-		{
-			"name": "pdf.paragraph-line-spacing",
-			"type": "java.lang.Integer",
-			"description": "A description for 'pdf.paragraph-line-spacing'"
-		},
-		{
-			"name": "pdf.body-font-size",
-			"type": "java.lang.Integer",
-			"description": "A description for 'pdf.body-font-size'"
-		},
-		{
-			"name": "pdf.heading",
-			"type": "java.lang.String",
-			"description": "A description for 'pdf.heading'"
-		},
-		{
-			"name": "pdf.body-font-small-size",
-			"type": "java.lang.Integer",
-			"description": "A description for 'pdf.body-font-small-size'"
-		},
-		{
-			"name": "pdf.paragraph-line-spacing-small",
-			"type": "java.lang.Integer",
-			"description": "A description for 'pdf.paragraph-line-spacing-small'"
 		}
 	]
 }

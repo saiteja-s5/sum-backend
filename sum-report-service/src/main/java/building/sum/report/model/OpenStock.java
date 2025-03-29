@@ -31,24 +31,24 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "stock_holdings_open")
-public class Stock {
+@Table(name = "open_stock_holdings")
+public class OpenStock {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "stock_id")
-	private Long stockId;
+	@Column(name = "open_stock_id")
+	private Long openStockId;
 
 	@NotEmpty(message = "{mandatory}")
-	@Column(name = "stock_name", length = 200, nullable = false)
+	@Column(name = "stock_name", nullable = false, columnDefinition = "NVARCHAR(1500)")
 	private String stockName;
 
 	@NotEmpty(message = "{mandatory}")
-	@Column(name = "stock_symbol", length = 10, nullable = false)
+	@Column(name = "stock_symbol", length = 30, nullable = false)
 	private String stockSymbol;
 
 	@Enumerated(EnumType.STRING)
-	@NotEmpty(message = "{mandatory}")
+	@NotNull(message = "{mandatory}")
 	@Column(name = "bought_market", length = 10, nullable = false)
 	private Market boughtMarket;
 
@@ -69,22 +69,36 @@ public class Stock {
 	private BigDecimal buyPrice;
 
 	@NotNull(message = "{mandatory}")
-	@PastOrPresent(message = "{future}")
-	@Column(name = "created_date_time", nullable = false)
-	private LocalDateTime createdDateTime;
+	@Column(name = "is_active", nullable = false)
+	private Integer isActive;
 
 	@NotEmpty(message = "{mandatory}")
 	@Column(name = "created_by", length = 50, nullable = false)
 	private String createdBy;
 
+	@NotNull(message = "{mandatory}")
+	@PastOrPresent(message = "{future}")
+	@Column(name = "created_date_time", nullable = false)
+	private LocalDateTime createdDateTime;
+
 	@NotEmpty(message = "{mandatory}")
-	@Column(name = "user_join_key", length = 10, nullable = false)
+	@Column(name = "updated_by", length = 50, nullable = false)
+	private String updatedBy;
+
+	@NotNull(message = "{mandatory}")
+	@PastOrPresent(message = "{future}")
+	@Column(name = "updated_date_time", nullable = false)
+	private LocalDateTime updatedDateTime;
+
+	@NotEmpty(message = "{mandatory}")
+	@Column(name = "user_join_key", nullable = false, columnDefinition = "NVARCHAR(20)")
 	private String userJoinKey;
 
 	@Override
 	public String toString() {
-		return stockId + "," + stockName + "," + stockSymbol + "," + boughtMarket.getExtension() + "," + investmentDate
-				+ "," + quantity + "," + buyPrice + "," + createdBy + "," + createdDateTime;
+		return openStockId + "," + stockName + "," + stockSymbol + "," + boughtMarket.getExtension() + ","
+				+ investmentDate + "," + quantity + "," + buyPrice + "," + isActive + "," + createdBy + ","
+				+ createdDateTime + "," + updatedBy + "," + updatedDateTime + "," + userJoinKey;
 	}
 
 }

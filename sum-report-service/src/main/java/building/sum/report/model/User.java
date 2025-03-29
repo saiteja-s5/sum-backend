@@ -78,24 +78,34 @@ public class User {
 	@Column(name = "is_active", nullable = false)
 	private Integer isActive;
 
+	@NotEmpty(message = "{mandatory}")
+	@Column(name = "created_by", length = 50, nullable = false)
+	private String createdBy;
+
 	@NotNull(message = "{mandatory}")
 	@PastOrPresent(message = "{future}")
 	@Column(name = "created_date_time", nullable = false)
 	private LocalDateTime createdDateTime;
 
 	@NotEmpty(message = "{mandatory}")
-	@Column(name = "created_by", length = 50, nullable = false)
-	private String createdBy;
+	@Column(name = "updated_by", length = 50, nullable = false)
+	private String updatedBy;
+
+	@NotNull(message = "{mandatory}")
+	@PastOrPresent(message = "{future}")
+	@Column(name = "updated_date_time", nullable = false)
+	private LocalDateTime updatedDateTime;
 
 	@NotEmpty(message = "{mandatory}")
-	@Column(name = "user_join_key", length = 10, nullable = false)
+	@Column(name = "user_join_key", nullable = false, columnDefinition = "NVARCHAR(20)")
 	private String userJoinKey;
 
 	@Override
 	public String toString() {
 		return userKey + "," + firstName + "," + lastName + "," + displayName + "," + emailId + "," + contactNumber
 				+ "," + aadharNumber + "," + pancardNumber + "," + password + "," + dob + "," + signInDate + ","
-				+ address + "," + isActive + "," + createdDateTime + "," + createdBy + "," + userJoinKey;
+				+ address + "," + isActive + "," + createdDateTime + "," + createdBy + "," + updatedDateTime + ","
+				+ updatedBy + "," + userJoinKey;
 	}
 
 }
