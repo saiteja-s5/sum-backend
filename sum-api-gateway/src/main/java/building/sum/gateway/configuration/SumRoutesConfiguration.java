@@ -16,7 +16,8 @@ public class SumRoutesConfiguration {
 				.route("sum-inventory-service",
 						r -> r.path("/open-stocks/**", "/funds/**", "/dividends/**", "/closed-stocks/**")
 								.uri("lb://sum-inventory-service"))
-				.route("sum-market-service", r -> r.path("/market/**").uri("lb://sum-market-service")).build();
+				.route("sum-market-service", r -> r.path("/market/**").uri("lb://sum-market-service"))
+				.route("sum-report-service", r -> r.path("/pdf-report/**").uri("lb://sum-report-service")).build();
 	}
 
 }
