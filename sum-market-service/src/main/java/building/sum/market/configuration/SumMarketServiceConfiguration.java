@@ -1,5 +1,9 @@
 package building.sum.market.configuration;
 
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,5 +24,22 @@ public class SumMarketServiceConfiguration {
 	WebClient.Builder webClientBuilderLoadBalanced() {
 		return WebClient.builder();
 	}
+
+	/* Configuration for rabbitmq - Starts */
+	@Bean
+	Queue queue() {
+		return new Queue("daily-after-market-queue");
+	}
+
+	@Bean
+	TopicExchange exchange() {
+		return new TopicExchange("daily-after-market-exchange");
+	}
+
+	@Bean
+	Binding binding() {
+		return BindingBuilder.bind(queue()).to(exchange()).with("daily-after-market-key");
+	}
+	/* Configuration for rabbitmq - Ends */
 
 }

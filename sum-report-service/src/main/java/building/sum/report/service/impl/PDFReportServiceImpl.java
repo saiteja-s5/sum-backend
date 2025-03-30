@@ -75,6 +75,7 @@ public class PDFReportServiceImpl implements PDFReportService {
 		this.reportTemplateRepository = reportTemplateRepository;
 	}
 
+	//TODO Logs
 	@Override
 	public byte[] generateAfterMarketPdfReport(String userJoinKey) {
 
@@ -438,6 +439,7 @@ public class PDFReportServiceImpl implements PDFReportService {
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			document.save(baos);
+			log.info("Done");
 			return baos.toByteArray();
 
 		} catch (Exception e) {
