@@ -3,6 +3,7 @@ package building.sum.report.service.impl;
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -313,8 +314,8 @@ public class PDFReportServiceImpl implements PDFReportService {
 				 * 
 				 * stream.endText(); // }
 				 */
+
 				// Table Summary
-				// TODO Recalculating
 
 				stream.beginText();
 				String summaryHeading = "Overall Investment Breakdown";
@@ -326,56 +327,64 @@ public class PDFReportServiceImpl implements PDFReportService {
 
 				stream.beginText();
 				stream.newLineAtOffset(leftPadding, pageHeight - sumIcon.getHeight() - topPadding - 50 * topPadding);
-
 				stream.setNonStrokingColor(Color.BLACK);
 				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 				stream.showText("Total Investment");
 				stream.showText(" : ");
+				BigDecimal overallStock = Optional.ofNullable(holdings.getTotalStockInvestmentValue()).isPresent()
+						? holdings.getTotalStockInvestmentValue()
+						: BigDecimal.ZERO;
+				// TODO
+				BigDecimal overallMutualFund = BigDecimal.ZERO;
 				stream.setNonStrokingColor(Color.BLUE);
 				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
-				stream.showText("XXX");
-//					stream.showText(Optional.ofNullable(holdings.getTotalStockInvestmentValue()).isPresent()
-//							? holdings.getTotalStockInvestmentValue().toString()
-//							: "0");
+				stream.showText(overallStock.add(overallMutualFund).toString());
 				stream.newLine();
 
 				stream.setNonStrokingColor(Color.BLACK);
 				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 				stream.showText("Current Return");
 				stream.showText(" : ");
+				BigDecimal overallStockCurrent = Optional.ofNullable(holdings.getTotalStockCurrentReturn()).isPresent()
+						? holdings.getTotalStockCurrentReturn()
+						: BigDecimal.ZERO;
+				// TODO
+				BigDecimal overallMutualFundCurrent = BigDecimal.ZERO;
 				stream.setNonStrokingColor(
-						holdings.getTotalStockCurrentReturn().doubleValue() > 0 ? Color.GREEN : Color.RED);
+						overallStockCurrent.add(overallMutualFundCurrent).doubleValue() > 0 ? Color.GREEN : Color.RED);
 				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
-				stream.showText("XXX");
-//					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentReturn()).isPresent()
-//							? holdings.getTotalStockCurrentReturn().toString()
-//							: "0");
+				stream.showText(overallStockCurrent.add(overallMutualFundCurrent).toString());
 				stream.newLine();
 
 				stream.setNonStrokingColor(Color.BLACK);
 				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 				stream.showText("Current Return %");
 				stream.showText(" : ");
+				BigDecimal overallStockCurrentPercent = Optional
+						.ofNullable(holdings.getTotalStockCurrentReturnPercent()).isPresent()
+								? holdings.getTotalStockCurrentReturnPercent()
+								: BigDecimal.ZERO;
+				// TODO
+				BigDecimal overallMutualFundCurrentPercent = BigDecimal.ZERO;
 				stream.setNonStrokingColor(
-						holdings.getTotalStockCurrentReturnPercent().doubleValue() > 0 ? Color.GREEN : Color.RED);
+						overallStockCurrentPercent.add(overallMutualFundCurrentPercent).doubleValue() > 0 ? Color.GREEN
+								: Color.RED);
 				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
-				stream.showText("XXX");
-//					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentReturnPercent()).isPresent()
-//							? holdings.getTotalStockCurrentReturnPercent().toString()
-//							: "0");
+				stream.showText(overallStockCurrentPercent.add(overallMutualFundCurrentPercent).toString());
 				stream.newLine();
 
 				stream.setNonStrokingColor(Color.BLACK);
 				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
 				stream.showText("Current Portfolio Value");
 				stream.showText(" : ");
-				stream.setNonStrokingColor(holdings.getTotalStockCurrentValue().doubleValue() > holdings
-						.getTotalStockInvestmentValue().doubleValue() ? Color.GREEN : Color.RED);
+				BigDecimal overallStockCurrentValue = Optional.ofNullable(holdings.getTotalStockCurrentValue())
+						.isPresent() ? holdings.getTotalStockCurrentValue() : BigDecimal.ZERO;
+				// TODO
+				BigDecimal overallMutualFundCurrentValue = BigDecimal.ZERO;
+				stream.setNonStrokingColor(overallStockCurrentValue.add(overallMutualFundCurrentValue)
+						.doubleValue() > overallStock.add(overallMutualFund).doubleValue() ? Color.GREEN : Color.RED);
 				stream.setFont(bodyFont, template.getBodyFontSize().floatValue());
-				stream.showText("XXX");
-//					stream.showText(Optional.ofNullable(holdings.getTotalStockCurrentValue()).isPresent()
-//							? holdings.getTotalStockCurrentValue().toString()
-//							: "0");
+				stream.showText(overallStockCurrentValue.add(overallMutualFundCurrentValue).toString());
 				stream.newLine();
 
 				stream.endText();
@@ -424,7 +433,7 @@ public class PDFReportServiceImpl implements PDFReportService {
 
 			setInformation(document);
 			if (template.getPasswordProtected().booleanValue()) {
-				setPassword(document, currentUser, details, template.getPasswordLength().intValue());
+				setPassword(document, currentUser, template.getPasswordLength().intValue());
 			}
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -446,7 +455,7 @@ public class PDFReportServiceImpl implements PDFReportService {
 		information.setTitle(title);
 	}
 
-	private void setPassword(PDDocument document, User currentUser, AppDetails details, int length) {
+	private void setPassword(PDDocument document, User currentUser, int length) {
 		try {
 			AccessPermission permissions = new AccessPermission();
 			permissions.setReadOnly();
