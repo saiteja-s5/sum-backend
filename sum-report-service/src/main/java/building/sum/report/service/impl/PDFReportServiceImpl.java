@@ -181,10 +181,9 @@ public class PDFReportServiceImpl implements PDFReportService {
 
 				// Table Current Holdings
 
-				//TODO LoadBalanced
 				// 1. Stock Investment Breakdown
 				OpenStockDashboardDTO holdings = webClientBuilder.build().get()
-						.uri("http://localhost:9393/dashboard/" + userJoinKey + "/open-stock").retrieve()
+						.uri("lb://sum-market-service/dashboard/" + userJoinKey + "/open-stock").retrieve()
 						.bodyToMono(OpenStockDashboardDTO.class).block();
 
 				if (holdings != null) {
