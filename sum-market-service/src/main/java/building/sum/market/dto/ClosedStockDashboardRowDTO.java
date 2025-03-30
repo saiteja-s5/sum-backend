@@ -9,10 +9,12 @@ import building.sum.market.model.ClosedStock;
 import building.sum.market.model.Market;
 import building.sum.market.utility.SumUtility;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class ClosedStockDashboardRowDTO {
 
 	private String stockName;

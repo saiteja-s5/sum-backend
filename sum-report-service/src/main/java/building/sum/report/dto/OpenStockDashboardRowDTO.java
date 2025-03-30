@@ -9,10 +9,12 @@ import building.sum.report.model.Market;
 import building.sum.report.model.OpenStock;
 import building.sum.report.service.utility.SumUtility;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class OpenStockDashboardRowDTO {
 
 	private String stockName;

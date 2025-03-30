@@ -5,10 +5,12 @@ import java.time.LocalDateTime;
 
 import building.sum.market.model.Dividend;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class DividendDashboardRowDTO {
 
 	private String companyName;

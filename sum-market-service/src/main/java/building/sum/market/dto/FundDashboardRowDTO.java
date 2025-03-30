@@ -5,10 +5,12 @@ import java.time.LocalDateTime;
 
 import building.sum.market.model.Fund;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class FundDashboardRowDTO {
 
 	private LocalDateTime transactionDate;
