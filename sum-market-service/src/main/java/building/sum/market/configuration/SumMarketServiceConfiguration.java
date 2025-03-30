@@ -10,10 +10,15 @@ public class SumMarketServiceConfiguration {
 
 	/* Configuration to handle responses upto 10MB */
 	@Bean
-	@LoadBalanced
 	WebClient.Builder webClientBuilder() {
 		return WebClient.builder().codecs(
 				clientCodecConfigurer -> clientCodecConfigurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024));
+	}
+
+	@Bean
+	@LoadBalanced
+	WebClient.Builder webClientBuilderLoadBalanced() {
+		return WebClient.builder();
 	}
 
 }
