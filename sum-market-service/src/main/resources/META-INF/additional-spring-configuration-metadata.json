@@ -44,6 +44,26 @@
 			"name": "scheduler.log-path",
 			"type": "java.lang.String",
 			"description": "A description for 'daily-market.log-path'"
+		},
+		{
+			"name": "env",
+			"type": "java.lang.String",
+			"description": "A description for 'env'"
+		},
+		{
+			"name": "daily-after-market-exchange",
+			"type": "java.lang.String",
+			"description": "A description for 'daily-after-market-exchange'"
+		},
+		{
+			"name": "daily-after-market-queue",
+			"type": "java.lang.String",
+			"description": "A description for 'daily-after-market-queue'"
+		},
+		{
+			"name": "daily-after-market-key",
+			"type": "java.lang.String",
+			"description": "A description for 'daily-after-market-key'"
 		}
 	]
 }
