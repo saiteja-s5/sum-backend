@@ -4,6 +4,7 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,15 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class SumReportServiceConfiguration {
+
+	@Value("${daily-after-market-queue}")
+	private String dailyAfterMarketQueue;
+
+	@Value("${daily-after-market-exchange}")
+	private String dailyAfterMarketExchange;
+
+	@Value("${daily-after-market-key}")
+	private String dailyAfterMarketKey;
 
 	@Bean
 	@LoadBalanced
@@ -40,18 +50,18 @@ public class SumReportServiceConfiguration {
 
 	/* Configuration for rabbitmq - Starts */
 	@Bean
-	Queue queue() {
-		return new Queue("daily-after-market-queue");
+	Queue dailyAfterMarketQueue() {
+		return new Queue(dailyAfterMarketQueue);
 	}
 
 	@Bean
-	TopicExchange exchange() {
-		return new TopicExchange("daily-after-market-exchange");
+	TopicExchange dailyAfterMarketExchange() {
+		return new TopicExchange(dailyAfterMarketExchange);
 	}
 
 	@Bean
-	Binding binding() {
-		return BindingBuilder.bind(queue()).to(exchange()).with("daily-after-market-key");
+	Binding dailyAfterMarketBinding() {
+		return BindingBuilder.bind(dailyAfterMarketQueue()).to(dailyAfterMarketExchange()).with(dailyAfterMarketKey);
 	}
 	/* Configuration for rabbitmq - Ends */
 

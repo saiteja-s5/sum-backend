@@ -12,7 +12,7 @@ public class SumReportServiceListener {
 
 	private final PDFReportService pdfReportService;
 
-	@RabbitListener(queues = { "daily-after-market-queue" })
+	@RabbitListener(queues = { "${daily-after-market-queue}" })
 	public void generateReport(String userJoinKey) {
 		pdfReportService.generateAfterMarketPdfReport(userJoinKey);
 	}
