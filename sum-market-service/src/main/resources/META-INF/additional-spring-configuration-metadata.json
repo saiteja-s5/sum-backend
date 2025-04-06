@@ -31,12 +31,12 @@
 			"description": "A description for 'request.historical-quote-path'"
 		},
 		{
-			"name": "daily-after-market-table-update.scheduler-time",
+			"name": "daily-after-market-table-updater.scheduler-time",
 			"type": "java.lang.String",
 			"description": "A description for 'after-market.scheduler-time'"
 		},
 		{
-			"name": "daily-after-market-table-update.scheduler-enabled",
+			"name": "daily-after-market-table-updater.scheduler-enabled",
 			"type": "java.lang.Booelan",
 			"description": "A description for 'after-market.scheduler-enabled'"
 		},
@@ -64,6 +64,16 @@
 			"name": "daily-after-market-key",
 			"type": "java.lang.String",
 			"description": "A description for 'daily-after-market-key'"
+		},
+		{
+			"name": "daily-after-market-report-generator.scheduler-time",
+			"type": "java.lang.String",
+			"description": "A description for 'daily-after-market-report-generator.scheduler-time'"
+		},
+		{
+			"name": "daily-after-market-report-generator.scheduler-enabled",
+			"type": "java.lang.Booelan",
+			"description": "A description for 'daily-after-market-report-generator.scheduler-enabled'"
 		}
 	]
 }

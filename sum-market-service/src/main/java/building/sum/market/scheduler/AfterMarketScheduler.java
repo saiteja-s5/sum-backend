@@ -25,6 +25,15 @@ public class AfterMarketScheduler {
 	@Value("${daily-after-market-table-update.scheduler-enabled}")
 	private boolean isDailyAfterMarketUpdaterSchedulerEnabled;
 
+	@Value("${daily-after-market-report-generator.scheduler-enabled}")
+	private boolean isDailyAfterMarketReportSchedulerEnabled;
+
+	@Value("${daily-after-market-exchange}")
+	private String dailyAfterMarketExchange;
+
+	@Value("${daily-after-market-key}")
+	private String dailyAfterMarketKey;
+
 	private static final Logger log = LogManager.getLogger();
 
 	private static final DateTimeFormatter DMY_FORMATTER = SumUtility.DMY_FORMATTER;
@@ -46,8 +55,8 @@ public class AfterMarketScheduler {
 	}
 
 	@Scheduled(cron = "${daily-after-market-table-update.scheduler-time}")
-	public void getDailyAfterMarketUpdateData() {
-		SchedulerType type = SchedulerType.DAILY_AFTER_MARKET;
+	public void dailyAfterMarketUpdateTableData() {
+		SchedulerType type = SchedulerType.DAILY_AFTER_MARKET_TABLES_UPDATER;
 		try {
 			if (isDailyAfterMarketUpdaterSchedulerEnabled) {
 				String logContent = "Daily After Market Updater Scheduler is Enabled";
@@ -66,21 +75,26 @@ public class AfterMarketScheduler {
 		}
 	}
 
-	// TODO Scheduler-2
-	@Scheduled(cron = "${daily-after-market-table-update.scheduler-time}")
+	@Scheduled(cron = "${daily-after-market-report-generator.scheduler-time}")
 	public void generateDailyAfterMarketReport() {
-		SchedulerType type = SchedulerType.DAILY_AFTER_MARKET;
+		SchedulerType type = SchedulerType.DAILY_AFTER_MARKET_REPORT;
 		try {
-			for (User user : userRepository.findAll()) {
-				generateReport(user.getUserJoinKey());
+			if (isDailyAfterMarketReportSchedulerEnabled) {
+				String logContent = "Daily After Market Report Scheduler is Enabled";
+				logWriter.writeLog(logContent, type);
+				log.info(logContent);
+				for (User user : userRepository.findAll()) {
+					rabbitTemplate.convertAndSend(dailyAfterMarketExchange, dailyAfterMarketKey, user.getUserJoinKey());
+				}
+			} else {
+				String logDisableContent = "Daily After Market Report Scheduler is Disabled";
+				logWriter.writeLog(logDisableContent, type);
+				log.warn(logDisableContent);
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
+			log.warn("Scheduler stopped! Type - {}", type);
+			throw new SchedulerStoppedException(e.getMessage());
 		}
-	}
-
-	private void generateReport(String userJoinKey) {
-		rabbitTemplate.convertAndSend("daily-after-market-exchange", "daily-after-market-key", userJoinKey);
 	}
 
 }
