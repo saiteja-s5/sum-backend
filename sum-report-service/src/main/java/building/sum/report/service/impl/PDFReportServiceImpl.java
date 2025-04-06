@@ -75,10 +75,9 @@ public class PDFReportServiceImpl implements PDFReportService {
 		this.reportTemplateRepository = reportTemplateRepository;
 	}
 
-	//TODO Logs
 	@Override
 	public byte[] generateAfterMarketPdfReport(String userJoinKey) {
-
+		log.info("Generating after market report for user - {}", userJoinKey);
 		// User Details Fetch
 		Optional<User> currentUserContainer = userRepository.findByUserJoinKeyIgnoreCase(userJoinKey);
 		User currentUser;
@@ -86,6 +85,7 @@ public class PDFReportServiceImpl implements PDFReportService {
 			throw new ResourceNotFoundException(String.format("User with Join Key - %s not found", userJoinKey));
 		} else {
 			currentUser = currentUserContainer.get();
+			log.debug("Fetched user details");
 		}
 
 		// App Details Fetch
@@ -96,6 +96,7 @@ public class PDFReportServiceImpl implements PDFReportService {
 					String.format("App Details with Key - %s not found", SumUtility.APP_DETAILS_TABLE_PK));
 		} else {
 			details = detailsContainer.get();
+			log.debug("Fetched app details");
 		}
 
 		// Report Configuration Fetch
@@ -107,6 +108,7 @@ public class PDFReportServiceImpl implements PDFReportService {
 					ReportTemplateKey.DAILY_AFTER_MARKET.getPrimaryKey()));
 		} else {
 			template = templateContainer.get();
+			log.debug("Fetched report template details");
 		}
 
 		try (PDDocument document = new PDDocument()) {
@@ -129,6 +131,7 @@ public class PDFReportServiceImpl implements PDFReportService {
 				PDImageXObject sumIcon = PDImageXObject.createFromByteArray(document, template.getLogo().getData(),
 						template.getLogoName());
 				stream.drawImage(sumIcon, leftPadding / 2, pageHeight - sumIcon.getHeight() - topPadding);
+				log.debug("Written Logo on report");
 
 				// Set Heading
 				stream.beginText();
@@ -139,6 +142,7 @@ public class PDFReportServiceImpl implements PDFReportService {
 						pageHeight - topPadding * 6);
 				stream.showText(template.getHeadingText());
 				stream.endText();
+				log.debug("Written heading on report");
 
 				// Set User Details
 				stream.beginText();
@@ -180,6 +184,7 @@ public class PDFReportServiceImpl implements PDFReportService {
 				stream.showText(LocalDate.now().format(DMYW_FORMAT));
 				stream.newLine();
 				stream.endText();
+				log.debug("Written user details on report");
 
 				// Table Current Holdings
 
@@ -189,7 +194,7 @@ public class PDFReportServiceImpl implements PDFReportService {
 						.bodyToMono(OpenStockDashboardDTO.class).block();
 
 				if (holdings != null) {
-
+					log.debug("Fetched current holdings details");
 					stream.beginText();
 					String stockHeading = "Stock Investment Breakdown";
 					stream.newLineAtOffset(leftPadding,
@@ -251,6 +256,7 @@ public class PDFReportServiceImpl implements PDFReportService {
 					stream.newLine();
 
 					stream.endText();
+					log.debug("Written current holdings details on report");
 				}
 
 				// 2. Mutual Fund Investment Breakdown
@@ -389,6 +395,7 @@ public class PDFReportServiceImpl implements PDFReportService {
 				stream.newLine();
 
 				stream.endText();
+				log.debug("Written overall current value details on report");
 
 				// Signature
 				stream.beginText();
@@ -429,17 +436,19 @@ public class PDFReportServiceImpl implements PDFReportService {
 				stream.showText(author);
 				stream.newLine();
 				stream.endText();
-
+				log.debug("Written signature on report");
 			}
 
 			setInformation(document);
+			log.debug("Document information set");
 			if (template.getPasswordProtected().booleanValue()) {
 				setPassword(document, currentUser, template.getPasswordLength().intValue());
+				log.debug("Password set to report");
 			}
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			document.save(baos);
-			log.info("Done");
+			log.info("Report generation completed for user - {}", userJoinKey);
 			return baos.toByteArray();
 
 		} catch (Exception e) {
