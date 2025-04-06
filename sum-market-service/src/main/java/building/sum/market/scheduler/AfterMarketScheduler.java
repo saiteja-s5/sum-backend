@@ -22,7 +22,7 @@ import building.sum.market.utility.SumUtility;
 @Component
 public class AfterMarketScheduler {
 
-	@Value("${daily-after-market-table-update.scheduler-enabled}")
+	@Value("${daily-after-market-table-updater.scheduler-enabled}")
 	private boolean isDailyAfterMarketUpdaterSchedulerEnabled;
 
 	@Value("${daily-after-market-report-generator.scheduler-enabled}")
@@ -54,7 +54,7 @@ public class AfterMarketScheduler {
 		this.userRepository = userRepository;
 	}
 
-	@Scheduled(cron = "${daily-after-market-table-update.scheduler-time}")
+	@Scheduled(cron = "${daily-after-market-table-updater.scheduler-time}")
 	public void dailyAfterMarketUpdateTableData() {
 		SchedulerType type = SchedulerType.DAILY_AFTER_MARKET_TABLES_UPDATER;
 		try {
